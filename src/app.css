@@ -1,23 +1,83 @@
 :root {
-  --bg: #fbfaf7;
-  --fg: #1d1b18;
-  --muted: #6b665e;
+  --bg: #f7f4ee;
+  --surface: #fffdf9;
+  --fg: #1f1c18;
+  --muted: #6e675d;
+  --border: #e2dcd1;
   --accent: #c0392b;
-  font-family: system-ui, sans-serif;
+  --accent-soft: #f6e1dd;
+  --outline: #e4ded4;
+  --grid: #e8b9b2;
+  --font-ui: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-han:
+    'PingFang SC', 'Hiragino Sans GB', 'Noto Sans CJK SC', 'Source Han Sans SC', 'Microsoft YaHei',
+    sans-serif;
+  --font-han-tc:
+    'PingFang TC', 'Noto Sans CJK TC', 'Source Han Sans TC', 'Microsoft JhengHei', sans-serif;
+
+  color-scheme: light dark;
+  font-family: var(--font-ui);
+  line-height: 1.5;
   color: var(--fg);
   background: var(--bg);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #161514;
-    --fg: #ece9e3;
-    --muted: #a39d93;
+    --bg: #171513;
+    --surface: #211e1b;
+    --fg: #eeeae3;
+    --muted: #a39b8f;
+    --border: #36312b;
     --accent: #ef6a5a;
+    --accent-soft: #3d2420;
+    --outline: #3a3530;
+    --grid: #5c3530;
   }
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   background: var(--bg);
+}
+
+:lang(zh-Hans) {
+  font-family: var(--font-han);
+}
+
+:lang(zh-Hant) {
+  font-family: var(--font-han-tc);
+}
+
+a {
+  color: var(--accent);
+}
+
+button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: inherit;
+  color: var(--fg);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+button[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
