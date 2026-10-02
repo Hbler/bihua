@@ -7,6 +7,9 @@ export type Script = 'S' | 'T' | 'ST'
 /** HSK 3.0 level; 7 stands for the 7–9 band. */
 export type HskLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
+/** HSK 3.0 handwriting lists are per band: 1 elementary (1–3), 2 intermediate (4–6), 3 advanced (7–9). */
+export type HskBand = 1 | 2 | 3
+
 export type Reading = {
   /** Toneless ASCII key, ü written as `v` (`lv`). */
   syllable: string
@@ -24,7 +27,7 @@ export type CharEntry = {
   readings: Reading[]
   freqRank: number | null
   hsk: HskLevel | null
-  hskWrite: HskLevel | null
+  hskWriteBand: HskBand | null
   radical: string | null
   strokeCount: number | null
   hasStrokes: boolean
