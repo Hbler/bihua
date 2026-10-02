@@ -1,0 +1,23 @@
+:root {
+  --bg: #fbfaf7;
+  --fg: #1d1b18;
+  --muted: #6b665e;
+  --accent: #c0392b;
+  font-family: system-ui, sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161514;
+    --fg: #ece9e3;
+    --muted: #a39d93;
+    --accent: #ef6a5a;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
