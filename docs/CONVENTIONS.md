@@ -34,7 +34,7 @@
 - `src/components/` — reusable UI pieces; receive data through `$props`.
 - `src/lib/<area>/` — pure TypeScript by domain (`pinyin`, `search`, `data`); no Svelte or DOM imports except `lib/data/strokes.ts` (uses `fetch`).
 - `src/lib/*.svelte.ts` — shared reactive state.
-- `scripts/data/` — Node-only code; may import types from `src/lib/data/types.ts` but nothing else from `src/`.
+- `scripts/data/` — Node-only code; may import `src/lib/data/types.ts` and the pure `src/lib/pinyin/` module, nothing else from `src/`.
 
 ### File Structure
 

@@ -17,7 +17,12 @@ async function fetchStrokes(char: string): Promise<StrokeResult> {
     )
     if (response.status === 404) return { kind: 'missing' }
     if (!response.ok) return { kind: 'offline' }
-    return { kind: 'ok', data: (await response.json()) as StrokeData }
+    try {
+      return { kind: 'ok', data: (await response.json()) as StrokeData }
+    } catch {
+      // Some static hosts answer unknown paths with the HTML page instead of a 404.
+      return { kind: 'missing' }
+    }
   } catch {
     return { kind: 'offline' }
   }

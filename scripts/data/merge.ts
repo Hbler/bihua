@@ -23,6 +23,8 @@ type ReadingAcc = {
   syllable: string
   tone: Tone
   common: string[]
+  /** Glosses from proper-noun entries (France for 法 Fǎ), shown after the common ones. */
+  proper: string[]
   surname: string[]
   variant: string[]
   properOnly: boolean
@@ -39,6 +41,9 @@ type CharAcc = {
 const VARIANT_GLOSS =
   /^(old |archaic |ancient |erroneous |euphemistic |Japanese )*variant of |^see /i
 const SURNAME_GLOSS = /^surname /i
+/** Only "variant of …" glosses (not "see …" cross-references, which still carry meaning). */
+const VARIANT_ONLY_GLOSS =
+  /^(old |archaic |ancient |erroneous |euphemistic |Japanese )*variant of /i
 
 function pushUnique(list: string[], value: string): void {
   if (!list.includes(value)) list.push(value)
@@ -52,6 +57,7 @@ function addReading(acc: CharAcc, entry: CedictEntry, counterpart: string | null
       syllable: entry.syllable,
       tone: entry.tone,
       common: [],
+      proper: [],
       surname: [],
       variant: [],
       properOnly: true,
@@ -64,7 +70,7 @@ function addReading(acc: CharAcc, entry: CedictEntry, counterpart: string | null
   for (const gloss of entry.glosses) {
     if (VARIANT_GLOSS.test(gloss)) pushUnique(reading.variant, gloss)
     else if (SURNAME_GLOSS.test(gloss)) pushUnique(reading.surname, gloss)
-    else pushUnique(reading.common, gloss)
+    else pushUnique(entry.isProperNoun ? reading.proper : reading.common, gloss)
   }
   if (counterpart) reading.counterparts.add(counterpart)
 }
@@ -94,7 +100,7 @@ function toReading(reading: ReadingAcc): Reading {
     syllable: reading.syllable,
     tone: reading.tone,
     pinyin: numberedToMarks(reading.syllable, reading.tone),
-    meanings: [...reading.common, ...reading.surname, ...reading.variant],
+    meanings: [...reading.common, ...reading.proper, ...reading.surname, ...reading.variant],
     counterparts: [...reading.counterparts],
   }
 }
@@ -130,7 +136,10 @@ export function mergeSources(input: MergeInput): CharEntry[] {
       simp.asTrad = true
       addReading(simp, entry, null)
     } else {
-      addReading(simp, entry, entry.trad)
+      // Entries like `昰 是 [shi4] /variant of 是[shi4]/` only map an old form onto the
+      // Simplified one: they describe the Traditional side, and add nothing to 是 itself.
+      const isVariantMapping = entry.glosses.every((gloss) => VARIANT_ONLY_GLOSS.test(gloss))
+      if (!isVariantMapping) addReading(simp, entry, entry.trad)
       const trad = accFor(entry.trad)
       trad.asTrad = true
       addReading(trad, entry, entry.simp)
@@ -173,10 +182,17 @@ export function mergeSources(input: MergeInput): CharEntry[] {
     if (drawable.length) reading.counterparts = drawable
   }
 
-  // Frequency and HSK lists are Simplified: Traditional-only characters inherit from their counterparts.
+  // Frequency and HSK lists are Simplified: Traditional-only characters inherit from their
+  // counterparts, but only through readings with real meanings (not "variant of 法" forms like 㳒).
   for (const entry of entries) {
     if (entry.script !== 'T') continue
-    const counterparts = [...new Set(entry.readings.flatMap((reading) => reading.counterparts))]
+    const counterparts = [
+      ...new Set(
+        entry.readings
+          .filter((reading) => reading.meanings.some((meaning) => !VARIANT_GLOSS.test(meaning)))
+          .flatMap((reading) => reading.counterparts),
+      ),
+    ]
       .map((char) => byChar.get(char))
       .filter((counterpart) => counterpart !== undefined)
     entry.freqRank = minOrNull(counterparts.map((c) => c.freqRank))

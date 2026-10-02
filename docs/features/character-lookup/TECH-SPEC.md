@@ -59,17 +59,17 @@ Shared in `src/lib/data/types.ts`, imported by both the pipeline and the app. Sh
 
 ### CharEntry
 
-| Field         | Type                 | Description                                                          |
-| ------------- | -------------------- | -------------------------------------------------------------------- |
-| `char`        | `string`             | The character (one code point)                                       |
-| `script`      | `'S' \| 'T' \| 'ST'` | Simplified-only, Traditional-only, or identical in both              |
-| `readings`    | `Reading[]`          | One per distinct pinyin, ordered by CC-CEDICT order                  |
-| `freqRank`    | `number \| null`     | Jun Da rank (1 = most common); Traditional inherits from counterpart |
-| `hsk`         | `1–7 \| null`        | HSK 3.0 level; `7` = band 7–9                                        |
-| `hskWrite`    | `1–7 \| null`        | Level at which it appears in the HSK 3.0 handwriting list            |
-| `radical`     | `string \| null`     | From Make Me a Hanzi                                                 |
-| `strokeCount` | `number \| null`     | From stroke data (`strokes.length`)                                  |
-| `hasStrokes`  | `boolean`            | Whether `strokes/{char}.json` exists                                 |
+| Field          | Type                 | Description                                                                               |
+| -------------- | -------------------- | ----------------------------------------------------------------------------------------- |
+| `char`         | `string`             | The character (one code point)                                                            |
+| `script`       | `'S' \| 'T' \| 'ST'` | Simplified-only, Traditional-only, or identical in both                                   |
+| `readings`     | `Reading[]`          | One per distinct pinyin, ordered by CC-CEDICT order                                       |
+| `freqRank`     | `number \| null`     | Jun Da rank (1 = most common); Traditional inherits from counterpart                      |
+| `hsk`          | `1–7 \| null`        | HSK 3.0 level; `7` = band 7–9                                                             |
+| `hskWriteBand` | `1–3 \| null`        | HSK 3.0 handwriting list band: 1 elementary (1–3), 2 intermediate (4–6), 3 advanced (7–9) |
+| `radical`      | `string \| null`     | From Make Me a Hanzi                                                                      |
+| `strokeCount`  | `number \| null`     | From stroke data (`strokes.length`)                                                       |
+| `hasStrokes`   | `boolean`            | Whether `strokes/{char}.json` exists                                                      |
 
 ### Reading
 
@@ -206,7 +206,7 @@ export const charDataLoader: HanziWriterOptions['charDataLoader'] = (char, onLoa
 
 ## Performance Requirements
 
-- `dict.json` ≤ 2 MB raw / ≤ 600 KB gzip.
+- `dict.json` ≤ 4 MB raw / ≤ 650 KB gzip (first build: 3.8 MB / 590 KB; gzip is what is downloaded).
 - Dictionary parse + index ≤ 200 ms on a mid-range phone.
 - Search results ≤ 100 ms after input settles (debounce 100 ms; lookup itself < 5 ms).
 - JS bundle (excluding data) ≤ 100 KB gzip.
@@ -219,6 +219,15 @@ export const charDataLoader: HanziWriterOptions['charDataLoader'] = (char, onLoa
 3. Land pinyin, pipeline and search with tests; commit the first `dict.json`.
 4. Land the UI and PWA; manual QA on phone/tablet/desktop.
 5. Add Bihua links to the Obsidian glossary workflow (`https://<user>.github.io/bihua/#/<char>`).
+
+## Data notes (from the first build)
+
+- HSK 3.0 handwriting lists are published per band (elementary / intermediate / advanced), not per level, so the "handwriting only" filter uses the band of the selected level.
+- Jun Da's pinyin column is alphabetical, so the main reading comes from Make Me a Hanzi's `pinyin` order instead; remaining readings are ordered by number of ordinary glosses.
+- CC-CEDICT entries whose glosses are all "variant of …" (昰 → 是) describe only the Traditional side; they add no counterpart or meaning to the Simplified character.
+- Proper-noun entries (法 Fǎ "France") are merged into the reading but their glosses go after the common ones.
+- Counterparts without stroke data (乹, 亁) are dropped when a drawable one exists.
+- Known limitation: CC-CEDICT order decides the first meaning when one reading merges several entries (后 shows "empress" first).
 
 ## Open Questions
 

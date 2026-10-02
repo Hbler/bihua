@@ -88,7 +88,7 @@
 ### One committed `dict.json`, strokes copied at build
 
 - **Context**: CC-CEDICT changes over time; downloading it in CI would make builds non-reproducible. Stroke data is a versioned npm package.
-- **Decision**: Commit the generated `dict.json` (target < 2 MB raw, ~0.5 MB gzipped). Copy stroke JSON from `hanzi-writer-data` into `dist/strokes/` at build time instead of committing ~9,500 files.
+- **Decision**: Commit the generated `dict.json` (about 3.8 MB raw, 0.6 MB gzipped). Copy stroke JSON from `hanzi-writer-data` into `dist/strokes/` at build time instead of committing ~9,500 files.
 - **Consequences**: Reproducible CI builds; refreshing dictionary data is a deliberate local step.
 
 ### Strokes cached on demand, not precached

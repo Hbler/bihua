@@ -44,6 +44,13 @@
     list-style: none;
   }
 
+  @media (min-width: 640px) {
+    .steps {
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+    }
+  }
+
   li {
     position: relative;
     border-radius: 6px;

@@ -147,6 +147,27 @@ describe('mergeSources', () => {
     expect(shuo.readings[0].counterparts).toEqual(['說'])
   })
 
+  it('puts proper-noun meanings after common ones (法 France)', () => {
+    const fa = build({
+      cedict: parseCedict('法 法 [Fa3] /France/French/\n法 法 [fa3] /law/method/\n'),
+    }).get('法')!
+    expect(fa.readings[0].meanings).toEqual(['law', 'method', 'France', 'French'])
+  })
+
+  it("doesn't let variant-only Traditional forms inherit rank or HSK (㳒)", () => {
+    const entries = build({
+      cedict: parseCedict('说 说 [shuo1] /to speak/\n㳒 说 [shuo1] /variant of 说[shuo1]/\n'),
+    })
+    expect(entries.get('㳒')).toMatchObject({ script: 'T', freqRank: null, hsk: null })
+  })
+
+  it("doesn't add variant-only mappings to the Simplified side (昰 → 是)", () => {
+    const shi = build({
+      cedict: parseCedict('是 是 [shi4] /to be/\n昰 是 [shi4] /variant of 是[shi4]/\n'),
+    }).get('是')!
+    expect(shi.readings[0]).toMatchObject({ meanings: ['to be'], counterparts: [] })
+  })
+
   it('puts variant glosses after ordinary ones', () => {
     expect(build().get('倣')!.readings[0].meanings).toEqual(['variant of 仿[fang3]'])
     expect(build().get('仿')!.readings[0].meanings[0]).toBe('to imitate')
