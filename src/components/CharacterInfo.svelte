@@ -1,10 +1,16 @@
 <!-- Readings, meanings, counterparts and metadata for one character. -->
 <script lang="ts">
-  import type { CharEntry } from '$lib/data/types'
-  import { characterHref } from '$lib/route'
+  import type { CharEntry, Tone } from '$lib/data/types'
+  import { sandhiNotes } from '$lib/pinyin/sandhi'
+  import { characterHref, wordHref } from '$lib/route'
   import { splitRegisterLabels } from '$lib/search/register'
 
-  let { entry }: { entry: CharEntry } = $props()
+  interface Props {
+    entry: CharEntry
+    reading?: { syllable: string; tone: Tone }
+  }
+
+  let { entry, reading: selectedReading }: Props = $props()
 
   const MAX_MEANINGS = 6
   const BAND_NAMES = { 1: 'elementary', 2: 'intermediate', 3: 'advanced' } as const
@@ -47,15 +53,42 @@
 {#if entry.readings.length > 0}
   <ul class="readings">
     {#each entry.readings as reading (`${reading.syllable}${reading.tone}`)}
-      <li>
-        <p class="pinyin">
+      {@const isSelected =
+        selectedReading &&
+        selectedReading.syllable === reading.syllable &&
+        selectedReading.tone === reading.tone}
+      {@const notes = sandhiNotes(entry.char, reading.tone)}
+      <li class:selected-reading={isSelected}>
+        <p class="pinyin" class:selected={isSelected}>
           {reading.pinyin}
+          {#if isSelected}
+            <span class="in-word-tag">in this word</span>
+          {/if}
           {#each reading.counterparts as counterpart (counterpart)}
             <a class="counterpart" lang={counterpartLang} href={characterHref(counterpart)}
               >{counterpart}</a
             >
           {/each}
         </p>
+        {#if notes.length > 0}
+          {#each notes as note (note.text)}
+            <p class="sandhi-note">
+              {note.text}
+              {#if note.examples.length > 0}
+                <span class="sandhi-examples">
+                  (e.g.
+                  {#each note.examples as example, i (example.word)}
+                    {#if i > 0},
+                    {/if}
+                    <a class="example-link" href={wordHref(example.word)}
+                      >{example.word} <span class="spoken">{example.spoken}</span></a
+                    >
+                  {/each})
+                </span>
+              {/if}
+            </p>
+          {/each}
+        {/if}
         {#if reading.meanings.length}
           <ul class="meanings">
             {#each reading.meanings.slice(0, MAX_MEANINGS) as meaning (meaning)}
@@ -124,10 +157,46 @@
     font-weight: 600;
   }
 
+  .pinyin.selected {
+    color: var(--accent);
+  }
+
+  .in-word-tag {
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    align-self: center;
+  }
+
   .counterpart {
     font-size: 1.1rem;
     font-weight: 400;
     text-decoration: none;
+  }
+
+  .sandhi-note {
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .example-link {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .example-link:hover {
+    text-decoration: underline;
+  }
+
+  .example-link .spoken {
+    font-weight: 500;
   }
 
   .meanings {

@@ -1,6 +1,13 @@
 // Reactive current route, driven by the URL hash.
 
-import { englishSearchHref, modeForRoute, parseHash, type Route, type SearchMode } from './route.js'
+import {
+  englishSearchHref,
+  modeForRoute,
+  parseHash,
+  type Route,
+  type SearchMode,
+  wordHref,
+} from './route.js'
 import { settings } from './settings.svelte.js'
 
 export const router = $state({
@@ -43,4 +50,10 @@ export function replaceSearch(query: string, mode: SearchMode = 'pinyin'): void 
   const explicit = query.trim() !== ''
   history.replaceState(null, '', explicit ? `#/search/${encodeURIComponent(query)}` : '#/')
   setRoute({ name: 'search', query, explicit })
+}
+
+/** Updates the word route with the selected character without adding a history entry. */
+export function replaceWordChar(word: string, char: string): void {
+  history.replaceState(null, '', wordHref(word, char))
+  setRoute({ name: 'word', word, char })
 }

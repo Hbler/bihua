@@ -1,37 +1,53 @@
+<!-- Word page: word overview, character cards, and embedded character view. -->
 <script lang="ts">
-  import type { WordEntry } from '$lib/data/types'
-  import { characterHref, searchHref } from '$lib/route'
-  import { router } from '$lib/router.svelte'
-  import { splitRegisterLabels } from '$lib/search/register'
-  import { settings } from '$lib/settings.svelte'
-  import { lookupWord } from '$lib/words.svelte'
+  import type { Dictionary } from '$lib/data/dictionary.js'
+  import type { WordEntry } from '$lib/data/types.js'
+  import { spokenTones } from '$lib/pinyin/sandhi.js'
+  import { numberedToMarks } from '$lib/pinyin/tone-marks.js'
+  import { characterHref, searchHref, wordHref } from '$lib/route.js'
+  import { replaceWordChar, router } from '$lib/router.svelte.js'
+  import { splitRegisterLabels } from '$lib/search/register.js'
+  import { lookupWord, retryWords, words } from '$lib/words.svelte.js'
+
+  import CharacterView from '../components/CharacterView.svelte'
 
   interface Props {
+    dict: Dictionary
     word: string
+    char?: string | null
   }
 
-  let { word }: Props = $props()
+  let { dict, word, char }: Props = $props()
 
   let entry = $state<WordEntry | null | undefined>(undefined)
-  let loading = $state(true)
+  let loadError = $state(false)
 
-  $effect(() => {
-    const current = word
-    loading = true
-    lookupWord(current)
+  function load(target: string) {
+    entry = undefined
+    loadError = false
+    lookupWord(target)
       .then((res) => {
-        if (current === word) {
+        if (target === word) {
           entry = res
-          loading = false
+          loadError = false
         }
       })
       .catch(() => {
-        if (current === word) {
+        if (target === word) {
           entry = null
-          loading = false
+          loadError = true
         }
       })
+  }
+
+  $effect(() => {
+    load(word)
   })
+
+  function handleRetry() {
+    retryWords()
+    load(word)
+  }
 
   $effect(() => {
     document.title = `${word} — Bihua`
@@ -40,88 +56,170 @@
     }
   })
 
-  const isTraditionalMode = $derived(settings.script === 'T')
-  const displayWord = $derived.by(() => {
-    if (!entry) return word
-    if (isTraditionalMode && entry.traditional.length > 0) {
-      return entry.traditional[0]
+  const wordChars = $derived([...word])
+  const isTraditionalWord = $derived(Boolean(entry && entry.traditional.includes(word)))
+
+  const counterparts = $derived.by(() => {
+    if (!entry) return []
+    if (isTraditionalWord) {
+      return [entry.word]
     }
-    return entry.word
+    return entry.traditional
   })
 
-  const counterpart = $derived.by(() => {
-    if (!entry) return null
-    if (isTraditionalMode) {
-      return entry.word !== displayWord ? entry.word : null
+  const firstReading = $derived(entry?.readings[0])
+
+  const firstReadingSpoken = $derived.by(() => {
+    if (!firstReading) return []
+    return spokenTones(wordChars, firstReading.tones).tones
+  })
+
+  const selected = $derived.by(() => {
+    if (char && wordChars.includes(char)) {
+      return char
     }
-    return entry.traditional.length > 0 ? entry.traditional.join(', ') : null
+    return wordChars[0] ?? ''
+  })
+
+  const firstIndexOfSelected = $derived(wordChars.indexOf(selected))
+
+  const selectedReading = $derived.by(() => {
+    if (
+      !firstReading ||
+      firstIndexOfSelected === -1 ||
+      firstIndexOfSelected >= firstReading.syllables.length
+    ) {
+      return undefined
+    }
+    return {
+      syllable: firstReading.syllables[firstIndexOfSelected],
+      tone: firstReading.tones[firstIndexOfSelected],
+    }
   })
 </script>
 
 <a class="back" href={searchHref(router.lastSearch.query, router.lastSearch.mode)}>← Search</a>
 
-{#if loading}
-  <p class="status">Loading word…</p>
-{:else if !entry}
+{#if words.status === 'error' || loadError}
+  <div class="status">
+    <p>Couldn't load words.</p>
+    <button type="button" onclick={handleRetry}>Retry</button>
+  </div>
+{:else if entry === undefined || words.status === 'loading'}
+  <p class="status">Loading words…</p>
+{:else if entry === null}
   <section class="not-found">
     <p class="big">{word}</p>
     <p>Word not found.</p>
-    <a href="#/">Back to search</a>
+    <a href={searchHref(router.lastSearch.query, router.lastSearch.mode)}>Back to search</a>
   </section>
 {:else}
-  <article class="word-card">
-    <header class="header">
-      <h1 class="word-title" lang={isTraditionalMode ? 'zh-Hant' : 'zh-Hans'}>
-        {displayWord}
-      </h1>
-      {#if counterpart}
-        <span class="counterpart" lang={isTraditionalMode ? 'zh-Hans' : 'zh-Hant'}>
-          {counterpart}
-        </span>
-      {/if}
-    </header>
-
-    <div class="readings">
-      {#each entry.readings as reading (reading.pinyin)}
-        <section class="reading-block">
-          <p class="pinyin">{reading.pinyin}</p>
-          <ul class="meanings-list">
-            {#each reading.meanings as meaning (meaning)}
-              {@const parsed = splitRegisterLabels(meaning)}
-              <li>
-                <span class="meaning-text">{parsed.text || meaning}</span>
-                {#if parsed.labels.length > 0}
-                  {#each parsed.labels as label (label)}
-                    <span class="register-tag">{label}</span>
-                  {/each}
-                {/if}
-              </li>
+  <div class="word-page">
+    <header class="top-frame">
+      <div class="word-header">
+        <h1 class="word-title" lang={isTraditionalWord ? 'zh-Hant' : 'zh-Hans'}>
+          {word}
+        </h1>
+        {#if counterparts.length > 0}
+          <div class="counterparts" lang={isTraditionalWord ? 'zh-Hans' : 'zh-Hant'}>
+            {#each counterparts as cp, i (cp)}
+              {#if i > 0},
+              {/if}
+              <a class="counterpart-link" href={wordHref(cp)}>{cp}</a>
             {/each}
-          </ul>
-        </section>
-      {/each}
-    </div>
+          </div>
+        {/if}
+      </div>
 
-    <section class="characters-section">
-      <h2>Characters</h2>
-      <div class="char-grid">
-        {#each [...entry.word] as char (char)}
-          <a href={characterHref(char)} class="char-card">
-            <span class="char-glyph" lang="zh-Hans">{char}</span>
-            <span class="char-label">View character →</span>
-          </a>
+      <div class="readings">
+        {#each entry.readings as reading, readingIndex (reading.pinyin + readingIndex)}
+          {@const sandhi = spokenTones(wordChars, reading.tones)}
+          {@const hasSandhi = sandhi.tones.some((t, i) => t !== reading.tones[i])}
+          {@const spokenPinyin = sandhi.tones
+            .map((t, i) => numberedToMarks(reading.syllables[i], t))
+            .join(' ')}
+          <section class="reading-block">
+            <p class="reading-pinyin">{reading.pinyin}</p>
+            {#if hasSandhi}
+              <p class="spoken-line">
+                {sandhi.approximate ? 'usually spoken: ' : 'spoken: '}{spokenPinyin}
+              </p>
+            {/if}
+            <ul class="meanings-list">
+              {#each reading.meanings as meaning (meaning)}
+                {@const parsed = splitRegisterLabels(meaning)}
+                <li>
+                  {#if parsed.labels.length > 0}
+                    <span class="register-tags">
+                      {#each parsed.labels as label (label)}
+                        <span class="register-tag">{label}</span>
+                      {/each}
+                    </span>
+                  {/if}
+                  <span class="meaning-text">{parsed.text || meaning}</span>
+                </li>
+              {/each}
+            </ul>
+          </section>
         {/each}
       </div>
+
+      <div class="cards" role="group" aria-label="Characters in {word}">
+        {#each wordChars as c, i (i)}
+          {@const isPressed = c === selected && firstIndexOfSelected === i}
+          {@const citationTone = firstReading?.tones[i] ?? 1}
+          {@const spokenTone = firstReadingSpoken[i] ?? citationTone}
+          {@const syllable = firstReading?.syllables[i] ?? ''}
+          {@const spokenPinyin = syllable ? numberedToMarks(syllable, spokenTone) : ''}
+          {@const citationPinyin = syllable ? numberedToMarks(syllable, citationTone) : ''}
+          {@const charEntry = dict.byChar.get(c)}
+          {@const matchedReading =
+            charEntry?.readings.find((r) => r.syllable === syllable && r.tone === citationTone) ??
+            charEntry?.readings[0]}
+          {@const rawMeaning = matchedReading?.meanings[0] ?? ''}
+          {@const parsedMeaning = rawMeaning
+            ? splitRegisterLabels(rawMeaning).text || rawMeaning
+            : ''}
+          <button
+            type="button"
+            class="char-card"
+            aria-pressed={isPressed}
+            onclick={() => replaceWordChar(word, c)}
+          >
+            <span class="card-char" lang={isTraditionalWord ? 'zh-Hant' : 'zh-Hans'}>{c}</span>
+            <span class="card-pinyin">
+              <span class="spoken-pinyin-mark">{spokenPinyin}</span>
+              {#if spokenTone !== citationTone}
+                <span class="citation-pinyin-mark">{citationPinyin}</span>
+              {/if}
+            </span>
+            {#if parsedMeaning}
+              <span class="card-meaning">{parsedMeaning}</span>
+            {/if}
+          </button>
+        {/each}
+      </div>
+    </header>
+
+    <section class="bottom-frame">
+      <div class="bottom-frame-header">
+        <a class="open-char-link" href={characterHref(selected)}>
+          Open {selected}'s page →
+        </a>
+      </div>
+      {#key selected}
+        <CharacterView {dict} char={selected} reading={selectedReading} />
+      {/key}
     </section>
-  </article>
+  </div>
 {/if}
 
 <style>
   .back {
     display: inline-block;
+    margin-bottom: 16px;
     color: var(--muted);
     text-decoration: none;
-    margin-bottom: 24px;
     font-size: 14px;
   }
 
@@ -142,124 +240,213 @@
     color: var(--fg);
   }
 
-  .word-card {
+  .word-page {
     display: flex;
     flex-direction: column;
     gap: 32px;
   }
 
-  .header {
+  .top-frame {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 28px;
+  }
+
+  .word-header {
     display: flex;
     align-items: baseline;
     gap: 16px;
     flex-wrap: wrap;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 16px;
   }
 
   .word-title {
-    font-size: 48px;
-    margin: 0;
-    line-height: 1;
+    font-size: 3rem;
     font-weight: 600;
+    line-height: 1.1;
+    margin: 0;
   }
 
-  .counterpart {
-    font-size: 24px;
+  .counterparts {
+    font-size: 1.5rem;
     color: var(--muted);
+  }
+
+  .counterpart-link {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .counterpart-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
   }
 
   .readings {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
   }
 
   .reading-block {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
   }
 
-  .pinyin {
-    font-size: 18px;
+  .reading-pinyin {
+    margin: 0;
+    font-size: 1.25rem;
     font-weight: 600;
     color: var(--accent);
+  }
+
+  .spoken-line {
     margin: 0;
+    font-size: 0.95rem;
+    color: var(--muted);
+    font-style: italic;
   }
 
   .meanings-list {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 4px 0 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
   }
 
   .meanings-list li {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 15px;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 0.95rem;
+    line-height: 1.4;
   }
 
   .meaning-text {
     color: var(--fg);
   }
 
+  .register-tags {
+    display: inline-flex;
+    gap: 4px;
+    vertical-align: baseline;
+  }
+
   .register-tag {
     border: 1px solid var(--border);
     color: var(--muted);
-    font-size: 12px;
+    font-size: 11px;
     padding: 1px 5px;
     border-radius: 3px;
     background: transparent;
+    line-height: 1.2;
   }
 
-  .characters-section h2 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--muted);
-    margin: 0 0 16px;
-  }
-
-  .char-grid {
+  .cards {
     display: flex;
-    gap: 12px;
     flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
   }
 
   .char-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 12px 16px;
+    justify-content: flex-start;
+    text-align: center;
+    padding: 10px 14px;
+    min-width: 90px;
+    max-width: 140px;
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--surface);
     color: var(--fg);
-    text-decoration: none;
-    min-width: 80px;
+    cursor: pointer;
     transition:
-      border-color 0.2s,
-      background-color 0.2s;
+      border-color 0.15s,
+      background-color 0.15s;
+    height: auto;
+    min-height: 44px;
   }
 
   .char-card:hover {
     border-color: var(--accent);
+  }
+
+  .char-card[aria-pressed='true'] {
+    border-color: var(--accent);
     background: var(--accent-soft);
   }
 
-  .char-glyph {
-    font-size: 32px;
-    line-height: 1;
+  .card-char {
+    font-size: 2rem;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+
+  .char-card[aria-pressed='true'] .card-char {
     color: var(--accent);
   }
 
-  .char-label {
-    font-size: 12px;
+  .card-pinyin {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .spoken-pinyin-mark {
+    color: var(--fg);
+  }
+
+  .char-card[aria-pressed='true'] .spoken-pinyin-mark {
+    color: var(--accent);
+  }
+
+  .citation-pinyin-mark {
+    font-size: 0.8rem;
+    font-weight: 400;
     color: var(--muted);
+  }
+
+  .card-meaning {
+    font-size: 0.75rem;
+    line-height: 1.3;
+    color: var(--muted);
+    margin-top: 6px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bottom-frame {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .bottom-frame-header {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .open-char-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .open-char-link:hover {
+    text-decoration: underline;
   }
 </style>
