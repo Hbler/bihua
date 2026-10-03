@@ -2,6 +2,7 @@
 <script lang="ts">
   import type { CharEntry } from '$lib/data/types'
   import { characterHref } from '$lib/route'
+  import { splitRegisterLabels } from '$lib/search/register'
 
   let { entry }: { entry: CharEntry } = $props()
 
@@ -58,7 +59,17 @@
         {#if reading.meanings.length}
           <ul class="meanings">
             {#each reading.meanings.slice(0, MAX_MEANINGS) as meaning (meaning)}
-              <li>{meaning}</li>
+              {@const parsed = splitRegisterLabels(meaning)}
+              <li>
+                {#if parsed.labels.length > 0}
+                  <span class="register-tags">
+                    {#each parsed.labels as label (label)}
+                      <span class="register-tag">{label}</span>
+                    {/each}
+                  </span>
+                {/if}
+                <span>{parsed.text}</span>
+              </li>
             {/each}
           </ul>
         {/if}
@@ -128,5 +139,23 @@
 
   .meanings li + li {
     margin-top: 2px;
+  }
+
+  .register-tags {
+    display: inline-flex;
+    gap: 4px;
+    margin-right: 6px;
+    vertical-align: baseline;
+  }
+
+  .register-tag {
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+    line-height: 1.2;
+    background: transparent;
+    display: inline-block;
   }
 </style>

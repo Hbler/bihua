@@ -26,7 +26,7 @@
     <CharacterPage dict={dictionary.current.dict} char={router.route.char} />
   {:else if router.route.name === 'about'}
     <AboutPage />
-  {:else}
+  {:else if router.route.name === 'search' || router.route.name === 'english-search'}
     <SearchPage dict={dictionary.current.dict} query={router.route.query} />
   {/if}
 </main>

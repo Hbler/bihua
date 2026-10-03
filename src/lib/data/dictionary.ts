@@ -11,7 +11,7 @@ export type Dictionary = {
  * Compare two Hits for sorting.
  * Order: freqRank ascending (null last), strokeCount ascending (null last), char code point, tone ascending.
  */
-function compareHits(a: Hit, b: Hit): number {
+export function compareHits(a: Hit, b: Hit): number {
   // freqRank ascending (null last)
   if (a.entry.freqRank !== null && b.entry.freqRank === null) return -1
   if (a.entry.freqRank === null && b.entry.freqRank !== null) return 1

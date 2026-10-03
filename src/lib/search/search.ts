@@ -80,7 +80,7 @@ export function searchSyllable(
 /**
  * Check if an entry's script matches the requested script filter.
  */
-function matchesScriptFilter(entryScript: Script, filterScript: 'S' | 'T' | 'ST'): boolean {
+export function matchesScriptFilter(entryScript: Script, filterScript: 'S' | 'T' | 'ST'): boolean {
   if (filterScript === 'ST') return true
   if (filterScript === 'S') return entryScript === 'S' || entryScript === 'ST'
   // filterScript === 'T'

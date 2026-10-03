@@ -5,11 +5,20 @@ import { DEFAULT_FILTERS, type SearchFilters } from './search/search.js'
 
 export type AnimationSpeed = 0.5 | 1 | 2
 
-export type Settings = SearchFilters & { animationSpeed: AnimationSpeed }
+export type SearchMode = 'pinyin' | 'english'
+
+export type Settings = SearchFilters & {
+  searchMode: SearchMode
+  animationSpeed: AnimationSpeed
+}
 
 const STORAGE_KEY = 'bihua:settings'
 
-const DEFAULT_SETTINGS: Settings = { ...DEFAULT_FILTERS, animationSpeed: 1 }
+const DEFAULT_SETTINGS: Settings = {
+  ...DEFAULT_FILTERS,
+  searchMode: 'pinyin',
+  animationSpeed: 1,
+}
 
 const HSK_LEVELS: readonly HskLevel[] = [1, 2, 3, 4, 5, 6, 7]
 const SPEEDS: readonly AnimationSpeed[] = [0.5, 1, 2]
@@ -28,6 +37,7 @@ export function sanitizeSettings(value: unknown): Settings {
     hskFilter: pick('hskFilter', isBoolean),
     hskLevel: pick('hskLevel', (v) => HSK_LEVELS.includes(v as HskLevel)),
     handwritingOnly: pick('handwritingOnly', isBoolean),
+    searchMode: pick('searchMode', (v) => v === 'pinyin' || v === 'english'),
     animationSpeed: pick('animationSpeed', (v) => SPEEDS.includes(v as AnimationSpeed)),
   }
 }

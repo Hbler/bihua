@@ -1,16 +1,30 @@
 <script lang="ts">
   import { characterHref } from '$lib/route'
   import type { Hit } from '$lib/data/dictionary'
+  import { splitRegisterLabels } from '$lib/search/register'
 
-  interface Props {
-    hits: Hit[]
+  type ResultItem = Hit & {
+    matchedGloss?: string
   }
 
-  let { hits }: Props = $props()
+  interface Props {
+    hits: ResultItem[]
+    title?: string
+  }
+
+  let { hits, title }: Props = $props()
 </script>
 
+{#if title}
+  <h2 class="tier-title">{title}</h2>
+{/if}
+
 <ul class="result-list">
-  {#each hits as { entry, reading } (`${entry.char}-${reading.syllable}${reading.tone}`)}
+  {#each hits as hit (`${hit.entry.char}-${hit.reading.syllable}${hit.reading.tone}`)}
+    {@const { entry, reading } = hit}
+    {@const rawMeaning =
+      hit.matchedGloss || (reading.meanings.length > 0 ? reading.meanings[0] : '')}
+    {@const parsed = rawMeaning ? splitRegisterLabels(rawMeaning) : null}
     <li>
       <a href={characterHref(entry.char)} class="result-link">
         <span class="character" lang={entry.script === 'T' ? 'zh-Hant' : 'zh-Hans'}>
@@ -19,8 +33,8 @@
         <span class="info">
           <span class="pinyin">{reading.pinyin}</span>
           <span class="meaning">
-            {#if reading.meanings.length > 0}
-              {reading.meanings[0]}
+            {#if parsed && parsed.text}
+              {parsed.text}
             {:else}
               —
             {/if}
@@ -30,6 +44,11 @@
               <span class="hsk-tag">
                 HSK {entry.hsk === 7 ? '7–9' : entry.hsk}
               </span>
+            {/if}
+            {#if parsed && parsed.labels.length > 0}
+              {#each parsed.labels as label (label)}
+                <span class="register-tag">{label}</span>
+              {/each}
             {/if}
             {#if reading.counterparts.length > 0}
               <span class="counterparts" lang={entry.script === 'T' ? 'zh-Hans' : 'zh-Hant'}>
@@ -44,6 +63,13 @@
 </ul>
 
 <style>
+  .tier-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+
   .result-list {
     list-style: none;
     padding: 0;
@@ -129,6 +155,15 @@
     padding: 2px 6px;
     border-radius: 3px;
     flex: 0 0 auto;
+  }
+
+  .register-tag {
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 1px 5px;
+    border-radius: 3px;
+    flex: 0 0 auto;
+    background: transparent;
   }
 
   .counterparts {

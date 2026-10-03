@@ -47,6 +47,12 @@ The user is a beginner Mandarin learner (paid course + Duolingo) who also reads 
 - Installable PWA, works fully offline.
 - Static site; free hosting (GitHub Pages / Netlify / Cloudflare Pages).
 
+### English and word search
+
+- A `拼 / EN` toggle on the search bar: search characters and words by English meaning. Several pinyin syllables find words (`diqiu` → 地球).
+- Word pages show the word's meaning and its characters, with one character's stroke order at a time. Each character page lists words containing it.
+- See `docs/features/english-search/PLAN.md`.
+
 ## Data sources
 
 | Need                                 | Source                                                              | License note                                                           |
@@ -55,6 +61,7 @@ The user is a beginner Mandarin learner (paid course + Duolingo) who also reads 
 | Stroke rendering/animation           | Hanzi Writer                                                        | MIT                                                                    |
 | Readings, meanings, S↔T mapping      | CC-CEDICT                                                           | CC BY-SA 4.0 — attribute                                               |
 | Frequency ranking                    | Jun Da character frequency list (or SUBTLEX-CH)                     | check terms                                                            |
+| Word frequency                       | SUBTLEX-CH word list                                                | check terms                                                            |
 | HSK levels                           | HSK 3.0 (GF0025-2021) character list + handwriting list, levels 1–9 | public standard                                                        |
 
 A build step should preprocess these into compact static JSON (pinyin index, per-character entries), so the app ships no raw dictionaries.
@@ -78,5 +85,4 @@ A build step should preprocess these into compact static JSON (pinyin index, per
 ## Possible later
 
 - Printable 田字格 practice sheets for a character
-- English-meaning search
 - TOCFL tags for Traditional

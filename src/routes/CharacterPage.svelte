@@ -38,7 +38,7 @@
   })
 </script>
 
-<a class="back" href={searchHref(router.lastSearch)}>← Search</a>
+<a class="back" href={searchHref(router.lastSearch.query, router.lastSearch.mode)}>← Search</a>
 
 {#if !entry && !isComponent && strokes !== 'loading' && strokes.kind === 'missing'}
   <section class="not-found">

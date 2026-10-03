@@ -1,9 +1,10 @@
 <script lang="ts">
   import { parseQuery } from '$lib/pinyin/parse'
   import { searchSyllable } from '$lib/search/search'
-  import { characterHref } from '$lib/route'
-  import { replaceSearch } from '$lib/router.svelte'
-  import { settings } from '$lib/settings.svelte'
+  import { searchEnglish, getOrBuildEnglishIndex } from '$lib/search/english'
+  import { characterHref, modeForRoute } from '$lib/route'
+  import { replaceSearch, router } from '$lib/router.svelte'
+  import { settings, type SearchMode } from '$lib/settings.svelte'
   import type { Dictionary } from '$lib/data/dictionary'
 
   import SearchBar from '../components/SearchBar.svelte'
@@ -17,6 +18,8 @@
 
   let { dict, query }: Props = $props()
 
+  const currentMode = $derived(modeForRoute(router.route, settings.searchMode))
+
   // Follows the URL (e.g. Back button) but can be overwritten while typing.
   let input = $derived(query)
   let debounceTimer: ReturnType<typeof setTimeout> | undefined
@@ -26,17 +29,38 @@
     input = value
     clearTimeout(debounceTimer)
     debounceTimer = setTimeout(() => {
-      replaceSearch(input)
+      replaceSearch(input, currentMode)
     }, 100)
   }
 
-  // Parse the current query
+  function handleModeChange(mode: SearchMode): void {
+    settings.searchMode = mode
+    replaceSearch(input, mode)
+  }
+
+  // Parse the current query for character detection (applies in both modes)
   const parsed = $derived(parseQuery(query))
 
   // Get search results for pinyin queries
-  const results = $derived(
-    parsed.kind === 'pinyin' ? searchSyllable(dict, parsed.syllable, parsed.tone, settings) : [],
+  const pinyinResults = $derived(
+    currentMode === 'pinyin' && parsed.kind === 'pinyin'
+      ? searchSyllable(dict, parsed.syllable, parsed.tone, settings)
+      : [],
   )
+
+  // English index and results (built lazily when in english mode)
+  const englishIndex = $derived(
+    currentMode === 'english' ? getOrBuildEnglishIndex(dict) : undefined,
+  )
+
+  const englishResults = $derived(
+    currentMode === 'english' && englishIndex && query.trim()
+      ? searchEnglish(englishIndex, query, settings)
+      : [],
+  )
+
+  const exactEnglishResults = $derived(englishResults.filter((r) => r.tier === 1))
+  const relatedEnglishResults = $derived(englishResults.filter((r) => r.tier === 2 || r.tier === 3))
 
   // Navigate to character page if a single character is entered
   $effect(() => {
@@ -52,7 +76,7 @@
   }
 </script>
 
-<SearchBar value={input} oninput={handleInput} />
+<SearchBar value={input} oninput={handleInput} mode={currentMode} onModeChange={handleModeChange} />
 
 <Filters />
 
@@ -70,45 +94,88 @@
         {/each}
       </div>
     </section>
-  {:else if parsed.kind === 'multi-syllable'}
-    <section class="message">
-      <p>
-        Type one syllable at a time (e.g. <code>shi</code> or <code>shi4</code>), or paste a
-        character.
-      </p>
-    </section>
-  {:else if parsed.kind === 'invalid'}
-    <section class="message">
-      <p>No syllable "<code>{parsed.input}</code>".</p>
-    </section>
-  {:else if parsed.kind === 'empty'}
-    <section class="intro">
-      <p>Search a character by pinyin:</p>
-      <ul>
-        <li><code>shi</code> — all tones</li>
-        <li><code>shi4</code> — tone 4 only</li>
-        <li><code>shì</code> — tone mark also works</li>
-        <li><code>lv</code> — ü as <code>v</code> or <code>u:</code></li>
-      </ul>
-      <p>Or paste a character: <span lang="zh-Hans">你</span></p>
-    </section>
-  {:else if parsed.kind === 'pinyin'}
-    <section class="results">
-      {#if results.length === 0}
+  {:else if currentMode === 'english'}
+    {#if !query.trim()}
+      <section class="intro">
+        <p>Search a character by English meaning:</p>
+        <ul>
+          <li><code>earth</code> — near-synonyms like 地 and 土</li>
+          <li><code>to eat</code> — verbs can include "to"</li>
+          <li><code>bank up</code> — multi-word phrases</li>
+        </ul>
+        <p>Or paste a character: <span lang="zh-Hans">你</span></p>
+      </section>
+    {:else if englishResults.length === 0}
+      <section class="results">
         <p class="no-results">
           {#if settings.hskFilter}
-            No HSK ≤ {formatHskLevel(settings.hskLevel)} characters for "<code
-              >{parsed.syllable}</code
+            No HSK ≤ {formatHskLevel(settings.hskLevel)} characters for "<code>{query.trim()}</code
             >". Turn off the HSK filter to see all.
           {:else}
-            No characters found.
+            No character has that meaning. Try a simpler word.
           {/if}
         </p>
-      {:else}
-        <p class="result-count">{results.length} result{results.length === 1 ? '' : 's'}</p>
-        <ResultList hits={results} />
-      {/if}
-    </section>
+      </section>
+    {:else}
+      <section class="results">
+        <p class="result-count">
+          {englishResults.length} result{englishResults.length === 1 ? '' : 's'}
+        </p>
+        {#if exactEnglishResults.length > 0}
+          <div class="tier-group">
+            <ResultList hits={exactEnglishResults} title="Exact" />
+          </div>
+        {/if}
+        {#if relatedEnglishResults.length > 0}
+          <div class="tier-group">
+            <ResultList hits={relatedEnglishResults} title="Related" />
+          </div>
+        {/if}
+      </section>
+    {/if}
+  {:else}
+    {#if parsed.kind === 'multi-syllable'}
+      <section class="message">
+        <p>
+          Type one syllable at a time (e.g. <code>shi</code> or <code>shi4</code>), or paste a
+          character.
+        </p>
+      </section>
+    {:else if parsed.kind === 'invalid'}
+      <section class="message">
+        <p>No syllable "<code>{parsed.input}</code>".</p>
+      </section>
+    {:else if parsed.kind === 'empty'}
+      <section class="intro">
+        <p>Search a character by pinyin:</p>
+        <ul>
+          <li><code>shi</code> — all tones</li>
+          <li><code>shi4</code> — tone 4 only</li>
+          <li><code>shì</code> — tone mark also works</li>
+          <li><code>lv</code> — ü as <code>v</code> or <code>u:</code></li>
+        </ul>
+        <p>Or paste a character: <span lang="zh-Hans">你</span></p>
+      </section>
+    {:else if parsed.kind === 'pinyin'}
+      <section class="results">
+        {#if pinyinResults.length === 0}
+          <p class="no-results">
+            {#if settings.hskFilter}
+              No HSK ≤ {formatHskLevel(settings.hskLevel)} characters for "<code
+                >{parsed.syllable}</code
+              >". Turn off the HSK filter to see all.
+            {:else}
+              No characters found.
+            {/if}
+          </p>
+        {:else}
+          <p class="result-count">
+            {pinyinResults.length} result{pinyinResults.length === 1 ? '' : 's'}
+          </p>
+          <ResultList hits={pinyinResults} />
+        {/if}
+      </section>
+    {/if}
   {/if}
 </div>
 
@@ -201,5 +268,9 @@
 
   .results {
     margin-top: 24px;
+  }
+
+  .tier-group {
+    margin-bottom: 24px;
   }
 </style>
