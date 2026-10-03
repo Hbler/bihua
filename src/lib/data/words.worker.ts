@@ -2,9 +2,11 @@ import type { WordsFile, WordEntry } from './types.js'
 import { decodeWords } from './words.js'
 import { parseWordQuery } from '../pinyin/parse.js'
 import {
+  buildCharIndex,
   buildWordIndex,
   searchWordsEnglish,
   searchWordsPinyin,
+  wordsContaining,
   type WordHit,
   type WordIndex,
 } from '../search/words.js'
@@ -13,6 +15,7 @@ export type WorkerRequestPayload =
   | { type: 'english'; query: string }
   | { type: 'pinyin'; query: string }
   | { type: 'lookup'; form: string }
+  | { type: 'containing'; char: string }
 
 export type WorkerRequest = WorkerRequestPayload & { id: number }
 
@@ -23,6 +26,7 @@ export type WorkerResponse =
   | { type: 'error'; error: string }
 
 let loadPromise: Promise<WordIndex> | null = null
+let charIndex: Map<string, number[]> | null = null
 
 async function getIndex(): Promise<WordIndex> {
   if (!loadPromise) {
@@ -67,6 +71,12 @@ self.onmessage = async (e: MessageEvent<WorkerRequest>) => {
       const entryIndex = index.byForm.get(req.form)
       const result = entryIndex !== undefined ? index.entries[entryIndex] : null
       self.postMessage({ id: req.id, result })
+    } else if (req.type === 'containing') {
+      if (!charIndex) {
+        charIndex = buildCharIndex(index.entries)
+      }
+      const hits = wordsContaining(index.entries, charIndex, req.char).slice(0, 300)
+      self.postMessage({ id: req.id, result: hits })
     }
   } catch (error) {
     self.postMessage({

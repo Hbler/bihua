@@ -5,11 +5,15 @@ import type { Dictionary } from '../data/dictionary.js'
 import { decodeWords } from '../data/words.js'
 import { parseWordQuery } from '../pinyin/parse.js'
 import {
+  buildCharIndex,
   buildWordIndex,
   filterWordHits,
   getWordDisplay,
+  isWordExcluded,
   searchWordsEnglish,
   searchWordsPinyin,
+  wordsContaining,
+  wordScriptForChar,
 } from './words.js'
 
 const TEST_ROWS: WordRow[] = [
@@ -222,5 +226,107 @@ describe('word search pure logic', () => {
       expect(filteredLevel4.map((h) => h.entry.word)).toContain('地球')
       expect(filteredLevel4.map((h) => h.entry.word)).toContain('泥土')
     })
+  })
+
+  describe('buildCharIndex and wordsContaining', () => {
+    const charIndex = buildCharIndex(entries)
+
+    it('finds 地 -> 地球 before 大地, each once', () => {
+      const hits = wordsContaining(entries, charIndex, '地')
+      expect(hits.map((h) => h.entry.word)).toEqual(['地球', '大地'])
+      expect(hits[0].readingIndex).toBe(0)
+      expect(hits[0].matchedGloss).toBe('the earth')
+      expect(hits[1].readingIndex).toBe(0)
+      expect(hits[1].matchedGloss).toBe('earth')
+    })
+
+    it('finds 說 -> 说话', () => {
+      const hits = wordsContaining(entries, charIndex, '說')
+      expect(hits.map((h) => h.entry.word)).toEqual(['说话'])
+      expect(hits[0].readingIndex).toBe(0)
+      expect(hits[0].matchedGloss).toBe('to speak')
+    })
+
+    it('finds 说 -> 说话', () => {
+      const hits = wordsContaining(entries, charIndex, '说')
+      expect(hits.map((h) => h.entry.word)).toEqual(['说话'])
+      expect(hits[0].readingIndex).toBe(0)
+      expect(hits[0].matchedGloss).toBe('to speak')
+    })
+
+    it('returns empty array for a character that is in no word', () => {
+      const hits = wordsContaining(entries, charIndex, '睨')
+      expect(hits).toEqual([])
+    })
+
+    it('builds the char index only from what is given', () => {
+      const singleIndex = buildCharIndex([entries[0]]) // 先生
+      expect(singleIndex.has('先')).toBe(true)
+      expect(singleIndex.has('生')).toBe(true)
+      expect(singleIndex.has('地')).toBe(false)
+      expect(singleIndex.has('说')).toBe(false)
+      expect(wordsContaining([entries[0]], singleIndex, '地')).toEqual([])
+    })
+  })
+
+  describe('wordScriptForChar', () => {
+    it('always returns T when charScript is T regardless of settingScript', () => {
+      expect(wordScriptForChar('T', 'S')).toBe('T')
+      expect(wordScriptForChar('T', 'T')).toBe('T')
+      expect(wordScriptForChar('T', 'ST')).toBe('T')
+    })
+
+    it('returns settingScript when charScript is S, ST, or undefined', () => {
+      expect(wordScriptForChar('S', 'S')).toBe('S')
+      expect(wordScriptForChar('S', 'T')).toBe('T')
+      expect(wordScriptForChar('S', 'ST')).toBe('ST')
+
+      expect(wordScriptForChar('ST', 'S')).toBe('S')
+      expect(wordScriptForChar('ST', 'T')).toBe('T')
+      expect(wordScriptForChar('ST', 'ST')).toBe('ST')
+
+      expect(wordScriptForChar(undefined, 'S')).toBe('S')
+      expect(wordScriptForChar(undefined, 'T')).toBe('T')
+      expect(wordScriptForChar(undefined, 'ST')).toBe('ST')
+    })
+  })
+
+  describe('isWordExcluded', () => {
+    const shuoEntry = entries[1] // 说话 / 說話
+
+    it('excludes by simplified form', () => {
+      expect(isWordExcluded(shuoEntry, '说话')).toBe(true)
+    })
+
+    it('excludes by traditional form', () => {
+      expect(isWordExcluded(shuoEntry, '說話')).toBe(true)
+    })
+
+    it('does not exclude non-matching words or undefined', () => {
+      expect(isWordExcluded(shuoEntry, '地球')).toBe(false)
+      expect(isWordExcluded(shuoEntry, undefined)).toBe(false)
+      expect(isWordExcluded(shuoEntry, '')).toBe(false)
+    })
+  })
+})
+
+describe('getWordDisplay', () => {
+  const [zheli] = decodeWords({
+    version: 1,
+    built: '2026-10-03',
+    words: [['这里', [['zhe4 li3', ['here'], ['這裏', '這裡']]], 100]],
+  })
+
+  it('shows the first Traditional form by default', () => {
+    expect(getWordDisplay(zheli, 'T').display).toBe('這裏')
+  })
+
+  it('prefers the Traditional form containing the given character', () => {
+    expect(getWordDisplay(zheli, 'T', '裡').display).toBe('這裡')
+    expect(getWordDisplay(zheli, 'ST', '裡').counterpart).toBe('這裡')
+  })
+
+  it('keeps the Simplified form outside Traditional mode', () => {
+    expect(getWordDisplay(zheli, 'S', '裡').display).toBe('这里')
   })
 })

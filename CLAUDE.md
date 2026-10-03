@@ -48,8 +48,8 @@ The user is a beginner Mandarin learner (Simplified, pinyin) who also reads a xi
 
 1. Edit the relevant parser in `scripts/data/sources/` or the merge in `scripts/data/build.ts`.
 2. If `CharEntry` changes, update `src/lib/data/types.ts` (shared by the build script and the app).
-3. `npm run data:build`, then check the diff of `public/data/dict.json` for a few known characters (了, 行, 发, 說, 睨).
-4. Commit the regenerated `dict.json` together with the code change.
+3. `npm run data:build`, then check the diff of `public/data/dict.json` for a few known characters (了, 行, 发, 說, 睨), and `public/data/words.json` for a few words (地球, 说话, 西安, 头发).
+4. Commit the regenerated `dict.json` and `words.json` together with the code change.
 
 ### Running tests
 
@@ -67,7 +67,9 @@ None. All data is static JSON.
 - `src/lib/pinyin/parse.ts`: user input → `{ syllable, tone }` or a character.
 - `src/lib/search/search.ts`: lookup, filtering, ranking.
 - `src/lib/data/strokes.ts`: offline stroke loader for Hanzi Writer.
-- `scripts/data/build.ts`: generates `public/data/dict.json`.
+- `scripts/data/build.ts`: generates `public/data/dict.json` and `public/data/words.json`.
+- `src/lib/data/words.worker.ts`, `src/lib/search/words.ts`: word loading and search (Web Worker + pure logic).
+- `docs/features/english-search/PLAN.md`: English search, words, word page, tone sandhi.
 - `vite.config.ts`: `base: '/bihua/'`, PWA config, stroke file copy.
 
 ## Things to Avoid

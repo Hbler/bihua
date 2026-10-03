@@ -8,7 +8,8 @@
 │  CC-CEDICT ──────► sources/cedict.ts ────┐                                          │
 │  MMAH dictionary ► sources/mmah.ts ──────┤                                          │
 │  Jun Da freq ────► sources/frequency.ts ─┼──► build.ts ──► public/data/dict.json    │
-│  HSK 3.0 lists ──► sources/hsk.ts ───────┘                 (committed)              │
+│  HSK 3.0 lists ──► sources/hsk.ts ───────┤                 (committed)              │
+│  SUBTLEX-CH words ► sources/subtlex.ts ──┴──► words.ts ──► public/data/words.json   │
 │                                                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────── build time (CI, every deploy) ─────────────────────────┐
@@ -16,7 +17,7 @@
 └─────────────────────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────── runtime (browser) ─────────────────────────────────────┐
 │                                                                                     │
-│  service worker ── precache: app shell + dict.json                                  │
+│  service worker ── precache: app shell + dict.json + words.json                     │
 │        │           runtime cache-first: strokes/*.json                              │
 │        ▼                                                                            │
 │  dict.json ──► loadDictionary() ──► Dictionary { byChar, bySyllable }               │
@@ -25,7 +26,10 @@
 │              └──► CharacterPage ──► CharacterInfo                                   │
 │                                └──► strokes.ts loader ──► StrokeAnimation (HW)      │
 │                                                       └──► StrokeSteps (SVG)        │
-│   settings.svelte.ts (script, HSK filter) ◄──► localStorage                         │
+│   words.json ──► words.worker.ts (decode + index, off main thread)                  │
+│                     ▲ searchWords* / lookupWord / wordsContainingChar               │
+│                     └── words.svelte.ts ◄── SearchPage, WordPage, CharacterView     │
+│   settings.svelte.ts (script, HSK filter, search mode) ◄──► localStorage           │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -54,6 +58,12 @@
 - **Purpose**: Turn a parsed query plus settings into an ordered result list.
 - **Responsibilities**: Syllable lookup, tone filter, script filter, HSK filter, ranking.
 - **Dependencies**: Dictionary, Pinyin.
+
+### Words (`src/lib/data/words*.ts`, `src/lib/search/words.ts`, `src/lib/words.svelte.ts`)
+
+- **Purpose**: Multi-character words for English and pinyin word search, the word page and "Words with X".
+- **Responsibilities**: Decode `words.json` and build the pinyin-key, form, English-token and character indexes inside a Web Worker; the main-thread client sends requests and exposes a loading status. Ranking, filters and display rules are pure functions in `src/lib/search/words.ts`.
+- **Dependencies**: Pinyin, English search helpers (`src/lib/search/english.ts`, `register.ts`).
 
 ### Stroke loader (`src/lib/data/strokes.ts`)
 

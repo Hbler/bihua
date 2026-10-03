@@ -3,19 +3,29 @@
   import type { Dictionary } from '$lib/data/dictionary.js'
   import { loadStrokes, type StrokeResult } from '$lib/data/strokes.js'
   import type { Tone } from '$lib/data/types.js'
+  import {
+    filterWordHits,
+    isWordExcluded,
+    wordScriptForChar,
+    type WordHit,
+  } from '$lib/search/words.js'
+  import { settings } from '$lib/settings.svelte.js'
+  import { retryWords, wordsContainingChar } from '$lib/words.svelte.js'
 
   import CharacterInfo from './CharacterInfo.svelte'
   import CompositionSection from './CompositionSection.svelte'
   import StrokeAnimation from './StrokeAnimation.svelte'
   import StrokeSteps from './StrokeSteps.svelte'
+  import WordList from './WordList.svelte'
 
   interface Props {
     dict: Dictionary
     char: string
     reading?: { syllable: string; tone: Tone }
+    excludeWord?: string
   }
 
-  let { dict, char, reading }: Props = $props()
+  let { dict, char, reading, excludeWord }: Props = $props()
 
   const entry = $derived(dict.byChar.get(char))
   const lang = $derived(entry?.script === 'T' ? 'zh-Hant' : 'zh-Hans')
@@ -35,6 +45,43 @@
       if (current === char) strokes = result
     })
   })
+
+  let rawWordHits = $state<WordHit[]>([])
+  let wordStatus = $state<'loading' | 'ready' | 'error'>('loading')
+
+  function loadWords(target: string): void {
+    wordStatus = 'loading'
+    wordsContainingChar(target)
+      .then((hits) => {
+        if (target === char) {
+          rawWordHits = hits
+          wordStatus = 'ready'
+        }
+      })
+      .catch(() => {
+        if (target === char) {
+          rawWordHits = []
+          wordStatus = 'error'
+        }
+      })
+  }
+
+  $effect(() => {
+    loadWords(char)
+  })
+
+  function handleRetryWords(): void {
+    retryWords()
+    loadWords(char)
+  }
+
+  const rawFilteredHits = $derived(
+    excludeWord
+      ? rawWordHits.filter((hit) => !isWordExcluded(hit.entry, excludeWord))
+      : rawWordHits,
+  )
+  const wordHits = $derived(filterWordHits(rawFilteredHits, dict, settings))
+  const wordScript = $derived(wordScriptForChar(entry?.script, settings.script))
 </script>
 
 {#if !entry && !isComponent && strokes !== 'loading' && strokes.kind === 'missing'}
@@ -78,6 +125,26 @@
             ? 'Component form — no dictionary entry.'
             : 'No dictionary entry for this character.'}
         </p>
+      {/if}
+
+      {#if wordStatus === 'loading'}
+        <section class="words">
+          <h2>Words with {char}</h2>
+          <p class="status">Loading words…</p>
+        </section>
+      {:else if wordStatus === 'error'}
+        <section class="words">
+          <h2>Words with {char}</h2>
+          <div class="status-error">
+            <p>Couldn't load words.</p>
+            <button type="button" class="retry-btn" onclick={handleRetryWords}>Retry</button>
+          </div>
+        </section>
+      {:else if wordHits.length > 0}
+        <section class="words">
+          <h2>Words with {char}</h2>
+          <WordList hits={wordHits} pageSize={12} highlight={char} script={wordScript} />
+        </section>
       {/if}
     </section>
   </div>
@@ -161,5 +228,41 @@
   .not-found {
     padding: 32px 0;
     text-align: center;
+  }
+
+  .status {
+    padding: 24px 0;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  .status-error {
+    padding: 24px 0;
+    text-align: center;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .retry-btn {
+    min-height: 44px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--fg);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+
+  .retry-btn:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
   }
 </style>

@@ -9,25 +9,29 @@
     hits: WordHit[]
     title?: string
     loading?: boolean
+    pageSize?: number
+    highlight?: string
+    script?: 'S' | 'T' | 'ST'
   }
 
-  let { hits, title, loading = false }: Props = $props()
+  let { hits, title, loading = false, pageSize = 20, highlight, script }: Props = $props()
 
-  let visibleCount = $state(20)
+  let extraCount = $state(0)
   let prevHits = $state<WordHit[] | null>(null)
 
   $effect(() => {
     if (hits !== prevHits) {
       prevHits = hits
-      visibleCount = 20
+      extraCount = 0
     }
   })
 
+  const visibleCount = $derived(pageSize + extraCount)
   const visibleHits = $derived(hits.slice(0, visibleCount))
   const hasMore = $derived(visibleCount < hits.length)
 
   function showMore(): void {
-    visibleCount += 20
+    extraCount += pageSize
   }
 </script>
 
@@ -47,16 +51,27 @@
     {#each visibleHits as hit (`${hit.entry.word}-${hit.readingIndex}`)}
       {@const { entry, readingIndex, matchedGloss } = hit}
       {@const reading = entry.readings[readingIndex]}
-      {@const { display, counterpart } = getWordDisplay(entry, settings.script)}
+      {@const effectiveScript = script ?? settings.script}
+      {@const { display, counterpart } = getWordDisplay(entry, effectiveScript, highlight)}
       {@const rawMeaning = matchedGloss || (reading.meanings.length > 0 ? reading.meanings[0] : '')}
       {@const parsed = rawMeaning ? splitRegisterLabels(rawMeaning) : null}
       <li>
         <a href={wordHref(display)} class="result-link">
           <span
             class="word"
-            lang={settings.script === 'T' && entry.traditional.length > 0 ? 'zh-Hant' : 'zh-Hans'}
+            lang={effectiveScript === 'T' && entry.traditional.length > 0 ? 'zh-Hant' : 'zh-Hans'}
           >
-            {display}
+            {#if highlight}
+              {#each [...display] as char, i (i)}
+                {#if char === highlight}
+                  <mark>{char}</mark>
+                {:else}
+                  {char}
+                {/if}
+              {/each}
+            {:else}
+              {display}
+            {/if}
           </span>
           <span class="info">
             <span class="pinyin">{reading.pinyin}</span>
@@ -74,7 +89,7 @@
                 {/each}
               {/if}
               {#if counterpart}
-                <span class="counterparts" lang={settings.script === 'T' ? 'zh-Hans' : 'zh-Hant'}>
+                <span class="counterparts" lang={effectiveScript === 'T' ? 'zh-Hans' : 'zh-Hant'}>
                   {counterpart}
                 </span>
               {/if}
@@ -188,6 +203,11 @@
     line-height: 44px;
     min-width: 80px;
     text-align: center;
+  }
+
+  mark {
+    background: none;
+    color: var(--accent);
   }
 
   .info {

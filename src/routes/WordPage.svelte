@@ -208,7 +208,7 @@
         </a>
       </div>
       {#key selected}
-        <CharacterView {dict} char={selected} reading={selectedReading} />
+        <CharacterView {dict} char={selected} reading={selectedReading} excludeWord={word} />
       {/key}
     </section>
   </div>

@@ -137,3 +137,7 @@ export function searchWordsPinyin(input: string): Promise<WordHit[]> {
 export function lookupWord(form: string): Promise<WordEntry | null> {
   return sendRequest<WordEntry | null>({ type: 'lookup', form })
 }
+
+export function wordsContainingChar(char: string): Promise<WordHit[]> {
+  return sendRequest<WordHit[]>({ type: 'containing', char })
+}

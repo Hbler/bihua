@@ -6,20 +6,22 @@ A Vite + Svelte 5 + TypeScript static app. A local Node script merges four open 
 
 ## Subtasks
 
-- [ ] **Scaffold** — Vite + Svelte 5 + TS (strict), ESLint, Prettier, Vitest, svelte-check; `base: '/bihua/'`; `$lib` alias; `.gitignore` with `data/raw/`.
-- [ ] **Resolve data sources** — confirm download URLs and licenses (see Open Questions), record them in `scripts/data/sources/README.md`.
-- [ ] **Pinyin module** — syllable table, `parseQuery`, `numberedToMarks`, `marksToNumbered`; tests first.
-- [ ] **Data pipeline** — `fetch.ts`; parsers for CC-CEDICT, MMAH `dictionary.txt`, frequency list, HSK lists; `build.ts` merge; size report; spot-check script for 了 行 发 說 睨.
-- [ ] **Dictionary loading** — `loadDictionary()` → `{ byChar, bySyllable }`; tests on a fixture.
-- [ ] **Search** — `search(query, dict, settings)` with tone/script/HSK filters and ranking; tests.
-- [ ] **Router + settings** — hash router, settings with localStorage persistence.
-- [ ] **Search page UI** — SearchBar (debounced, autofocus), Filters, ResultList/ResultItem, empty/invalid states, multi-character picker.
-- [ ] **Stroke loader** — `charDataLoader` against `BASE_URL/strokes/`; copy step in `vite.config.ts`.
-- [ ] **Character page UI** — StrokeAnimation (replay, speed), StrokeSteps strip, CharacterInfo, counterpart links, PRC note, fallbacks.
-- [ ] **PWA** — `vite-plugin-pwa`: manifest, icons, precache shell + `dict.json`, runtime cache-first for `strokes/`.
-- [ ] **About page** — credits and licenses.
-- [ ] **CI/CD** — GitHub Actions: `npm ci`, lint, check, test, build, deploy to Pages.
-- [ ] **Manual QA** — the PRD acceptance criteria on phone, tablet and desktop; offline mode in DevTools.
+- [x] **Scaffold** — Vite + Svelte 5 + TS (strict), ESLint, Prettier, Vitest, svelte-check; `base: '/bihua/'`; `$lib` alias; `.gitignore` with `data/raw/`.
+- [x] **Resolve data sources** — confirm download URLs and licenses. Recorded in `scripts/data/fetch.ts` and credited on the About page; the planned `scripts/data/sources/README.md` was dropped.
+- [x] **Pinyin module** — syllable table, `parseQuery`, `numberedToMarks`, `marksToNumbered`; tests first.
+- [x] **Data pipeline** — `fetch.ts`; parsers for CC-CEDICT, MMAH `dictionary.txt`, frequency list, HSK lists; `build.ts` merge; size report; spot-check script for 了 行 发 說 睨.
+- [x] **Dictionary loading** — `loadDictionary()` → `{ byChar, bySyllable }`; tests on a fixture.
+- [x] **Search** — `search(query, dict, settings)` with tone/script/HSK filters and ranking; tests.
+- [x] **Router + settings** — hash router, settings with localStorage persistence.
+- [x] **Search page UI** — SearchBar (debounced, autofocus), Filters, ResultList/ResultItem, empty/invalid states, multi-character picker.
+- [x] **Stroke loader** — `charDataLoader` against `BASE_URL/strokes/`; copy step in `vite.config.ts`.
+- [x] **Character page UI** — StrokeAnimation (replay, speed), StrokeSteps strip, CharacterInfo, counterpart links, PRC note, fallbacks.
+- [x] **PWA** — `vite-plugin-pwa`: manifest, icons, precache shell + `dict.json`, runtime cache-first for `strokes/`.
+- [x] **About page** — credits and licenses.
+- [x] **CI/CD** — GitHub Actions: `npm ci`, lint, check, test, build, deploy to Pages.
+- [ ] **Manual QA** (not done yet; also covers the English search and word features) — the PRD acceptance criteria on phone, tablet and desktop; offline mode in DevTools.
+
+Follow-up features: character composition (`docs/features/character-composition/PLAN.md`) and English and word search (`docs/features/english-search/PLAN.md`).
 
 ## API Design
 
@@ -41,6 +43,11 @@ No server API. The app reads two kinds of static files from its own origin.
 ```
 
 - **Errors**: Network failure with no cache → full-page "Couldn't load the dictionary" with Retry.
+
+#### `GET {BASE_URL}data/words.json`
+
+- **Purpose**: Multi-character words (CC-CEDICT, ranked by SUBTLEX-CH), loaded in a Web Worker after the dictionary. See `WordRow` below and `docs/features/english-search/PLAN.md`.
+- **Errors**: Failure → word sections show "Couldn't load words." with Retry; character search keeps working.
 
 #### `GET {BASE_URL}strokes/{char}.json`
 
@@ -84,6 +91,10 @@ Shared in `src/lib/data/types.ts`, imported by both the pipeline and the app. Sh
 | `meanings`     | `string[]` | CC-CEDICT glosses, trimmed; `meanings[0]` used as the short meaning |
 | `counterparts` | `string[]` | Other-script forms for this reading (empty if identical)            |
 
+### WordRow (`words.json`) and WordEntry
+
+Compact on disk: `WordRow = [simplified, WordReadingRow[], rank]`, `WordReadingRow = [numbered pinyin, meanings, traditional forms?]`, rank `0` when unranked. Rows are in ranking order. `decodeWords` turns them into `WordEntry { word, script, readings: WordReading[], freqRank, traditional }` with `WordReading { key, syllables, tones, pinyin, meanings, counterparts }` (key: toneless syllables joined, `diqiu`).
+
 ### ParsedQuery
 
 ```ts
@@ -105,6 +116,7 @@ type Settings = {
   hskFilter: boolean // default false
   hskLevel: 1 | 2 | 3 | 4 | 5 | 6 | 7 // default 1
   handwritingOnly: boolean // default false
+  searchMode: 'pinyin' | 'english' // default 'pinyin'
   animationSpeed: 0.5 | 1 | 2 // default 1
 }
 ```
@@ -166,7 +178,7 @@ export const charDataLoader: HanziWriterOptions['charDataLoader'] = (char, onLoa
 ### Routing (`src/lib/router.svelte.ts`)
 
 - Listen to `hashchange`; expose `route = $state<Route>()`.
-- `#/`, `#/search/<q>`, `#/about`, `#/<char>` (decodeURIComponent; one code point → character page, otherwise treat as a search).
+- `#/`, `#/search/<q>`, `#/en/<q>` (English mode), `#/w/<word>` and `#/w/<word>/<char>` (word page, selected character), `#/about`, `#/<char>` (decodeURIComponent; one code point → character page, otherwise treat as a search).
 - Typing updates the hash with `history.replaceState`; selecting a result uses a normal navigation so Back returns to the list.
 
 ## Testing Requirements
@@ -211,6 +223,8 @@ export const charDataLoader: HanziWriterOptions['charDataLoader'] = (char, onLoa
 
 - `dict.json` ≤ 6 MB raw / ≤ 800 KB gzip (with composition data: 5.3 MB / 751 KB; gzip is what is downloaded, once, then precached).
 - Dictionary parse + index ≤ 200 ms on a mid-range phone.
+- `words.json` ≤ 12 MB raw (precache limit in `vite.config.ts`); currently 7.9 MB raw / 3.5 MB gzip. Loading, decoding and indexing it runs in a Web Worker and must never block the main thread (≈520 ms on desktop).
+- English character index (lazy, first English search) ≈130 ms on desktop.
 - Search results ≤ 100 ms after input settles (debounce 100 ms; lookup itself < 5 ms).
 - JS bundle (excluding data) ≤ 100 KB gzip.
 - Lighthouse PWA installable; performance ≥ 90 on mobile.

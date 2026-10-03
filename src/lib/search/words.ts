@@ -230,16 +230,20 @@ export function searchWordsPinyin(
 export function getWordDisplay(
   entry: WordEntry,
   script: 'S' | 'T' | 'ST' | 'all' | Script,
+  /** A character the shown form should contain when there's a choice (裡 → 這裡, not 這裏). */
+  prefer?: string,
 ): { display: string; counterpart?: string } {
+  const traditional =
+    (prefer && entry.traditional.find((form) => form.includes(prefer))) || entry.traditional[0]
   if (script === 'T') {
     return {
-      display: entry.traditional[0] ?? entry.word,
+      display: traditional ?? entry.word,
     }
   }
   if (script === 'ST') {
     return {
       display: entry.word,
-      counterpart: entry.traditional[0],
+      counterpart: traditional,
     }
   }
   return {
@@ -275,4 +279,87 @@ export function filterWordHits(
     }
     return true
   })
+}
+
+/**
+ * Builds an inverted index mapping each character to the indices of the entries
+ * containing it, in ranking order, without duplicates.
+ * Indexes characters from both the simplified form and all traditional forms.
+ */
+export function buildCharIndex(entries: WordEntry[]): Map<string, number[]> {
+  const index = new Map<string, number[]>()
+
+  for (let entryIndex = 0; entryIndex < entries.length; entryIndex++) {
+    const entry = entries[entryIndex]
+    const chars = new Set<string>()
+
+    for (const c of entry.word) {
+      chars.add(c)
+    }
+    for (const trad of entry.traditional) {
+      for (const c of trad) {
+        chars.add(c)
+      }
+    }
+
+    for (const c of chars) {
+      let list = index.get(c)
+      if (!list) {
+        list = []
+        index.set(c, list)
+      }
+      list.push(entryIndex)
+    }
+  }
+
+  return index
+}
+
+/**
+ * Returns hits containing the character in ranking order.
+ * readingIndex is 0 and matchedGloss is readings[0].meanings[0].
+ * Words with several readings appear once.
+ */
+export function wordsContaining(
+  entries: WordEntry[],
+  charIndex: Map<string, number[]>,
+  char: string,
+): WordHit[] {
+  const list = charIndex.get(char)
+  if (!list) return []
+
+  const hits: WordHit[] = []
+  for (const entryIndex of list) {
+    const entry = entries[entryIndex]
+    hits.push({
+      entry,
+      readingIndex: 0,
+      matchedGloss: entry.readings[0]?.meanings[0] ?? '',
+    })
+  }
+  return hits
+}
+
+/**
+ * Determines the word display script mode for a character page.
+ * On a Traditional-only character page (charScript === 'T'), always shows
+ * the Traditional form ('T'). Otherwise follows the user's script setting.
+ */
+export function wordScriptForChar(
+  charScript: Script | undefined,
+  settingScript: 'S' | 'T' | 'ST',
+): 'S' | 'T' | 'ST' {
+  if (charScript === 'T') {
+    return 'T'
+  }
+  return settingScript
+}
+
+/**
+ * Checks if a word entry matches an excluded word by either its Simplified
+ * or any of its Traditional forms.
+ */
+export function isWordExcluded(entry: WordEntry, excludeWord?: string): boolean {
+  if (!excludeWord) return false
+  return entry.word === excludeWord || entry.traditional.includes(excludeWord)
 }

@@ -2,9 +2,21 @@
 
 Search by English meaning ("earth") and get every character with that meaning, ranked, so near-synonyms (地 dì, 土 tǔ) can be compared side by side.
 
-`BRIEF.md` lists English-meaning search under "Possible later", so phase 1 extends v1 without changing its scope. Phase 2 (words) does change the scope: the app becomes a word dictionary as well as a character one. It needs a decision before it is built.
+`BRIEF.md` lists English-meaning search under "Possible later", so phase 1 extends v1 without changing its scope. Phase 2 (words) changes the scope: the app becomes a word dictionary as well as a character one. It was approved on 2026-10-03.
+
+**Status (2026-10-03)**
+
+- [x] Phase 1: characters (`8de944a`)
+- [x] Phase 2 step 1: word data (`8487fa5`)
+- [x] Phase 2 step 2: word search (`14592bc`)
+- [x] Phase 2 step 3: word page and spoken pinyin (`90e303b`)
+- [x] Phase 2 step 4: words on the character view
+- [ ] Browser pass on phone and desktop (see the Checks sections)
+- [ ] Phase 3: device voice (not scheduled)
 
 ## Phase 1: characters
+
+Additions made during review: register labels (literary, courteous, …) are shown as tags in results and on the character page, and glosses with a register label rank after unlabelled ones within a tier (`src/lib/search/register.ts`).
 
 ### Decisions
 
@@ -55,6 +67,8 @@ Characters alone answer the 地/土 question, but the natural answer to "earth" 
 
 ### Data (`public/data/words.json`)
 
+As built: 92,383 rows, 40,631 with a SUBTLEX-CH rank, 3,361 proper nouns kept, **7.9 MB raw / 3.5 MB gzip**. The user accepted the larger size for the sake of runtime speed. Compact row format: `[simplified form, [[numbered pinyin, meanings, traditional forms?]], rank or 0]` (`WordRow` in `src/lib/data/types.ts`), decoded in the app by `decodeWords`. One row per word pair: Traditional forms are reached through the counterparts, never stored as separate rows.
+
 - All CC-CEDICT multi-character entries except proper nouns (capitalised pinyin): about 92k words, 6.5 MB raw / 2.9 MB gzip.
 - Ranked by a **word frequency list (SUBTLEX-CH word list)**. Words missing from it go last, ordered by the average frequency of their characters. Confirm the list's URL and terms and record them on the About page.
 - Same reading model as characters: per-word pinyin, glosses and Traditional/Simplified counterpart from the same CC-CEDICT entry (说话 ↔ 說話).
@@ -62,6 +76,8 @@ Characters alone answer the 地/土 question, but the natural answer to "earth" 
 - **Precached** by the service worker with the app shell and `dict.json`, so word search works offline from the first install.
 
 ### Search
+
+As built: words load, decode and index in a Web Worker (`src/lib/data/words.worker.ts`) started when the browser is idle after the dictionary loads (about 520 ms on desktop, off the main thread). The English word index stores single tokens only. Tiers and phrases are checked at query time, because a phrase index for 92k words took 1.3 s and 1.5M keys. Queries take under 1 ms.
 
 - **English mode**: a "Words" group under the character results, using the same tiers as phase 1, then word frequency.
 - **Pinyin mode, no extra toggle**: one syllable lists characters as today. Several syllables (`diqiu`, `di4qiu2`, `dì qiú`, `di qiu`) list words, replacing the current `multi-syllable` hint.
@@ -78,6 +94,8 @@ Characters alone answer the 地/土 question, but the natural answer to "earth" 
 
 ### Spoken pinyin (tone sandhi hint)
 
+As built, one difference from the rules below: CC-CEDICT writes 一个 as `yi1 ge5`, so 一 also becomes yí before a neutral-tone 个/個 (个 is a 4th tone underneath).
+
 Dictionary pinyin is the citation form. Some tones change in speech, so pages show the spoken form under the written one when they differ. Text only, no audio.
 
 - Pure module `src/lib/pinyin/sandhi.ts` with colocated tests: `spokenTones(syllables, tones): Tone[]`. It applies these rules:
@@ -90,6 +108,8 @@ Dictionary pinyin is the citation form. Some tones change in speech, so pages sh
 - Tests: 你好, 很好, 展览馆, 一个, 一天, 一样, 第一, 不是, 不对, 不好, words without sandhi (地球), and words with a neutral tone (东西 dōngxi).
 
 ### Words on the character page
+
+As built: the section is part of `CharacterView`, so it also appears for the selected character on the word page, which leaves out its own word. The character index is built in the worker on its first use (about 50 ms). Traditional-only characters list Traditional forms, picking the form that contains the character (裡 → 這裡, not 這裏).
 
 - A "Words with 地" section: the top words containing the character, by frequency (around 12, with "show more"), each linking to its word page.
 - Built from a `byChar` word index computed lazily from `words.json`.
