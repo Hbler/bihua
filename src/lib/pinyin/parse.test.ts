@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseQuery } from './parse'
+import { parseQuery, parseWordQuery } from './parse'
 
 describe('parseQuery', () => {
   describe('empty input', () => {
@@ -213,5 +213,43 @@ describe('parseQuery', () => {
     it('still rejects punctuation inside pinyin', () => {
       expect(parseQuery('shi?').kind).toBe('invalid')
     })
+  })
+})
+
+describe('parseWordQuery', () => {
+  it('accepts untoned, numbered, marked, spaced and apostrophe forms of diqiu', () => {
+    expect(parseWordQuery('diqiu')).toEqual({ key: 'diqiu', tones: [undefined, undefined] })
+    expect(parseWordQuery('di qiu')).toEqual({ key: 'diqiu', tones: [undefined, undefined] })
+    expect(parseWordQuery("di'qiu")).toEqual({ key: 'diqiu', tones: [undefined, undefined] })
+    expect(parseWordQuery('di4qiu2')).toEqual({ key: 'diqiu', tones: [4, 2] })
+    expect(parseWordQuery('di4 qiu2')).toEqual({ key: 'diqiu', tones: [4, 2] })
+    expect(parseWordQuery('dì qiú')).toEqual({ key: 'diqiu', tones: [4, 2] })
+    expect(parseWordQuery('dìqiú')).toEqual({ key: 'diqiu', tones: [4, 2] })
+  })
+
+  it("accepts xi'an, lvse, lv4se4, nv3ren2", () => {
+    expect(parseWordQuery("xi'an")).toEqual({ key: 'xian', tones: [undefined, undefined] })
+    expect(parseWordQuery('lvse')).toEqual({ key: 'lvse', tones: [undefined, undefined] })
+    expect(parseWordQuery('lv4se4')).toEqual({ key: 'lvse', tones: [4, 4] })
+    expect(parseWordQuery('nv3ren2')).toEqual({ key: 'nvren', tones: [3, 2] })
+  })
+
+  it('handles mixed input with some untoned syllables', () => {
+    expect(parseWordQuery('di4qiu')).toEqual({ key: 'diqiu', tones: [4, undefined] })
+    expect(parseWordQuery('di qiu2')).toEqual({ key: 'diqiu', tones: [undefined, 2] })
+  })
+
+  it('handles single syllables such as xian', () => {
+    expect(parseWordQuery('xian')).toEqual({ key: 'xian', tones: [undefined] })
+    expect(parseWordQuery('shi4')).toEqual({ key: 'shi', tones: [4] })
+  })
+
+  it('returns null when input cannot be segmented or has Han characters', () => {
+    expect(parseWordQuery('')).toBeNull()
+    expect(parseWordQuery('   ')).toBeNull()
+    expect(parseWordQuery('xyz')).toBeNull()
+    expect(parseWordQuery('di44qiu')).toBeNull()
+    expect(parseWordQuery('地球')).toBeNull()
+    expect(parseWordQuery('di3qiu2x')).toBeNull()
   })
 })

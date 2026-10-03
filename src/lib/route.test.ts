@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { characterHref, englishSearchHref, modeForRoute, parseHash, searchHref } from './route.js'
+import {
+  characterHref,
+  englishSearchHref,
+  modeForRoute,
+  parseHash,
+  searchHref,
+  wordHref,
+} from './route.js'
 
 describe('parseHash', () => {
   it('routes empty and root hashes to an empty search with explicit=false', () => {
@@ -24,6 +31,21 @@ describe('parseHash', () => {
     expect(parseHash('#/睨')).toEqual({ name: 'character', char: '睨' })
     // Explicit search path (#/search/睨) routes to search route with explicit=true (user typing)
     expect(parseHash('#/search/睨')).toEqual({ name: 'search', query: '睨', explicit: true })
+  })
+
+  it('routes word URLs with and without a selected character', () => {
+    expect(parseHash('#/w/地球')).toEqual({ name: 'word', word: '地球', char: null })
+    expect(parseHash('#/w/地球/球')).toEqual({ name: 'word', word: '地球', char: '球' })
+    expect(parseHash(`#/w/${encodeURIComponent('地球')}`)).toEqual({
+      name: 'word',
+      word: '地球',
+      char: null,
+    })
+    expect(parseHash(`#/w/${encodeURIComponent('地球')}/${encodeURIComponent('球')}`)).toEqual({
+      name: 'word',
+      word: '地球',
+      char: '球',
+    })
   })
 
   it('routes searches and about', () => {
@@ -53,6 +75,12 @@ describe('parseHash', () => {
 
   it('round-trips hrefs', () => {
     expect(parseHash(characterHref('睨'))).toEqual({ name: 'character', char: '睨' })
+    expect(parseHash(wordHref('地球'))).toEqual({ name: 'word', word: '地球', char: null })
+    expect(parseHash(wordHref('地球', '球'))).toEqual({
+      name: 'word',
+      word: '地球',
+      char: '球',
+    })
     expect(parseHash(searchHref('lǜ'))).toEqual({ name: 'search', query: 'lǜ', explicit: true })
     expect(parseHash(searchHref(''))).toEqual({ name: 'search', query: '', explicit: false })
     expect(searchHref('')).toBe('#/')

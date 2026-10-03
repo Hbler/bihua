@@ -61,10 +61,22 @@ export function normalizeQuery(query: string): string {
 }
 
 /**
+ * Tokenize a normalized gloss into individual word tokens.
+ */
+export function tokenizeGloss(normalized: string): string[] {
+  return normalized
+    .split(/\s+/)
+    .map((w) => w.replace(/^[^\w]+|[^\w]+$/g, ''))
+    .filter(Boolean)
+}
+
+/**
  * Extract all glosses for a reading, splitting on semicolons.
  * Returns array of { raw, normalized } with null normalized glosses filtered out.
  */
-export function extractGlosses(reading: Reading): { raw: string; normalized: string }[] {
+export function extractGlosses(reading: {
+  meanings: string[]
+}): { raw: string; normalized: string }[] {
   const glosses: { raw: string; normalized: string }[] = []
   for (const rawMeaning of reading.meanings) {
     for (const part of rawMeaning.split(';')) {
@@ -140,10 +152,7 @@ export function buildEnglishIndex(dict: Dictionary): EnglishIndex {
 
       for (let glossIndex = 0; glossIndex < glosses.length; glossIndex++) {
         const { normalized } = glosses[glossIndex]
-        const words = normalized
-          .split(/\s+/)
-          .map((w) => w.replace(/^[^\w]+|[^\w]+$/g, ''))
-          .filter(Boolean)
+        const words = tokenizeGloss(normalized)
         const n = words.length
         if (n === 0) continue
 

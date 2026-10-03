@@ -5,6 +5,7 @@
   import AboutPage from './routes/AboutPage.svelte'
   import CharacterPage from './routes/CharacterPage.svelte'
   import SearchPage from './routes/SearchPage.svelte'
+  import WordPage from './routes/WordPage.svelte'
 
   initDictionary()
 </script>
@@ -24,6 +25,8 @@
     </div>
   {:else if router.route.name === 'character'}
     <CharacterPage dict={dictionary.current.dict} char={router.route.char} />
+  {:else if router.route.name === 'word'}
+    <WordPage word={router.route.word} />
   {:else if router.route.name === 'about'}
     <AboutPage />
   {:else if router.route.name === 'search' || router.route.name === 'english-search'}

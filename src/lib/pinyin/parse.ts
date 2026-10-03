@@ -168,3 +168,97 @@ function segmentPart(part: string): string[] | null {
   }
   return segments[part.length]
 }
+
+const MAX_WORD_SYLLABLE_SLICE = 8
+
+function parseSyllableSlice(slice: string): { syllable: string; tone: Tone | undefined } | null {
+  // Tone digits cannot appear anywhere inside except at the end
+  if (/[0-5]/.test(slice.slice(0, -1))) return null
+
+  let tone: Tone | undefined
+  let base = slice
+
+  if (/[0-5]/.test(slice.slice(-1))) {
+    const digit = parseInt(slice.slice(-1), 10)
+    tone = (digit === 0 ? 5 : digit) as Tone
+    base = slice.slice(0, -1)
+  }
+
+  // Count tone marks: at most one tone mark is permitted in a single syllable
+  let markCount = 0
+  for (const ch of base) {
+    if ('āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ'.includes(ch)) {
+      markCount++
+    }
+  }
+  if (markCount > 1) return null
+
+  const stripped = stripToneMarks(base)
+  if (stripped.tone !== undefined) {
+    if (tone !== undefined && tone !== stripped.tone) return null
+    tone = stripped.tone
+  }
+
+  let text = stripped.text
+  text = text.replace(/ü/g, 'v').replace(/u:/g, 'v').replace(/lue/g, 'lve').replace(/nue/g, 'nve')
+
+  if (!SYLLABLES.has(text)) return null
+
+  return { syllable: text, tone }
+}
+
+function segmentWordPart(part: string): { syllable: string; tone: Tone | undefined }[] | null {
+  const n = part.length
+  const dp: ({ syllable: string; tone: Tone | undefined }[] | null)[] = new Array(n + 1).fill(null)
+  dp[0] = []
+
+  for (let end = 1; end <= n; end++) {
+    for (let start = Math.max(0, end - MAX_WORD_SYLLABLE_SLICE); start < end; start++) {
+      const prev = dp[start]
+      if (!prev) continue
+      const slice = part.slice(start, end)
+      const parsed = parseSyllableSlice(slice)
+      if (parsed) {
+        dp[end] = [...prev, parsed]
+        break
+      }
+    }
+  }
+
+  return dp[n]
+}
+
+/**
+ * Parse pinyin input for word search.
+ * Accepts diqiu, di qiu, di'qiu, di4qiu2, di4 qiu2, dì qiú, dìqiú, xi'an, lvse, lv4se4, nv3ren2.
+ * Mixed input such as di4qiu also works: syllables without a tone get undefined.
+ * Spaces, apostrophes and tone digits are boundaries.
+ * Returns null when the input can't be segmented into valid syllables.
+ */
+export function parseWordQuery(input: string): { key: string; tones: (Tone | undefined)[] } | null {
+  const trimmed = input.trim()
+  if (!trimmed) return null
+  if (/\p{Script=Han}/u.test(trimmed)) return null
+
+  const norm = trimmed
+    .toLowerCase()
+    .replace(/ü/g, 'v')
+    .replace(/u:/g, 'v')
+    .replace(/lue/g, 'lve')
+    .replace(/nue/g, 'nve')
+
+  const parts = norm.split(/[\s']+/).filter(Boolean)
+  if (parts.length === 0) return null
+
+  const allSyllables: { syllable: string; tone: Tone | undefined }[] = []
+  for (const part of parts) {
+    const seg = segmentWordPart(part)
+    if (!seg) return null
+    allSyllables.push(...seg)
+  }
+
+  return {
+    key: allSyllables.map((s) => s.syllable).join(''),
+    tones: allSyllables.map((s) => s.tone),
+  }
+}
