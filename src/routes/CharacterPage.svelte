@@ -92,9 +92,13 @@
     gap: 24px;
   }
 
+  .info {
+    min-width: 0;
+  }
+
   @media (min-width: 640px) {
     .layout {
-      grid-template-columns: minmax(240px, 320px) 1fr;
+      grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
       align-items: start;
     }
   }

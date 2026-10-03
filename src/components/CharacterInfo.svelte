@@ -55,7 +55,11 @@
         {/each}
       </p>
       {#if reading.meanings.length}
-        <p class="meanings">{reading.meanings.slice(0, MAX_MEANINGS).join('; ')}</p>
+        <ul class="meanings">
+          {#each reading.meanings.slice(0, MAX_MEANINGS) as meaning (meaning)}
+            <li>{meaning}</li>
+          {/each}
+        </ul>
       {/if}
     </li>
   {/each}
@@ -89,7 +93,7 @@
     list-style: none;
   }
 
-  li + li {
+  .readings > li + li {
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid var(--border);
@@ -114,6 +118,13 @@
   }
 
   .meanings {
+    margin: 4px 0 0;
+    padding-left: 1.1em;
     color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  .meanings li + li {
+    margin-top: 2px;
   }
 </style>

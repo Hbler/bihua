@@ -54,6 +54,8 @@
   }
 
   li {
+    /* Grid/flex items default to min-width: auto, which lets long meanings push into the next column. */
+    min-width: 0;
     border-bottom: 1px solid var(--border);
   }
 
@@ -104,11 +106,14 @@
   }
 
   .meaning {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
     font-size: 14px;
     color: var(--fg);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .meta {
