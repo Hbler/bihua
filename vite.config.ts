@@ -67,9 +67,10 @@ export default defineConfig({
       },
       workbox: {
         // App shell + dictionary are precached; stroke files (thousands) are cached when viewed.
-        globPatterns: ['**/*.{js,css,html,svg,png}', 'data/dict.json'],
+        globPatterns: ['**/*.{js,css,html,svg,png}', 'data/dict.json', 'data/words.json'],
         globIgnores: ['strokes/**'],
-        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+        // words.json is ~8.3 MB; keep headroom so a data update can't silently drop it from the precache.
+        maximumFileSizeToCacheInBytes: 12 * 1024 * 1024,
         runtimeCaching: [
           {
             // Serialized into the service worker: must not reference variables from this file.

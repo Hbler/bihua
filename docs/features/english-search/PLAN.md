@@ -76,6 +76,19 @@ Characters alone answer the 地/土 question, but the natural answer to "earth" 
 - Selecting a character updates the URL (`#/w/地球/球`) with `replaceState`, so a deep link or Obsidian link opens on that character. A link to the character's own page stays available.
 - The character page body is extracted into a shared component used by both pages.
 
+### Spoken pinyin (tone sandhi hint)
+
+Dictionary pinyin is the citation form. Some tones change in speech, so pages show the spoken form under the written one when they differ. Text only, no audio.
+
+- Pure module `src/lib/pinyin/sandhi.ts` with colocated tests: `spokenTones(syllables, tones): Tone[]`. It applies these rules:
+  - **Third tone before a third tone** becomes second: 你好 nǐ hǎo → ní hǎo. For chains of three or more (展览馆, 我也很好), apply the rule right to left as an approximation, and mark the result as approximate so the UI can say "usually".
+  - **一 yī**: yí before a 4th tone (一个 yí ge, 一样 yíyàng); yì before tones 1–3 (一天 yìtiān); unchanged at the end of a word, in ordinals (第一) and as a number in a sequence. Without the context, it is unchanged when 一 is the word's last character.
+  - **不 bù**: bú before a 4th tone (不是 bú shì, 不要 bú yào).
+  - Neutral tones are already marked in CC-CEDICT and need no rule.
+- **Word page**: under the word's pinyin, "spoken: ní hǎo" when the spoken form differs. The character cards in the top frame show the spoken tone for that position (好 in 你好 stays hǎo, 你 shows ní, with the citation form nǐ next to it).
+- **Character page**: for 一 and 不, a short note on the tone changes ("yí before a 4th tone, yì before tones 1–3"). For any 3rd-tone reading, one line: "Before another 3rd tone, said as 2nd tone (你好 ní hǎo)". The note links to an example word page.
+- Tests: 你好, 很好, 展览馆, 一个, 一天, 一样, 第一, 不是, 不对, 不好, words without sandhi (地球), and words with a neutral tone (东西 dōngxi).
+
 ### Words on the character page
 
 - A "Words with 地" section: the top words containing the character, by frequency (around 12, with "show more"), each linking to its word page.
@@ -87,3 +100,12 @@ Characters alone answer the 地/土 question, but the natural answer to "earth" 
 - Data spot-check: 地球, 说话/說話, 西安, 了解, 头发/頭髮.
 - `words.json` size within 7 MB raw / 3 MB gzip; precache size checked in the build output.
 - Browser pass: "earth" in English mode, `diqiu` and `xian` in pinyin mode, the word page character switching, deep link with a selected character, words on 地's page, offline after first load, at phone and desktop widths.
+
+## Phase 3: device voice (later, not scheduled)
+
+A 🔊 button on the character and word pages that reads the character or word aloud with the device's own Chinese voice (Web Speech API, `speechSynthesis`). A voice engine applies tone sandhi to whole words by itself. `BRIEF.md` lists audio as out of scope, so this changes the scope when it is scheduled.
+
+- **On-device voices only**: use a `zh-CN` voice with `localService === true`. Some voices (Google's in Chrome) send the text to a server, which breaks the "nothing leaves the browser" rule. If no local voice exists, hide the button and explain why on the About page.
+- Polyphones: a lone character is read with the engine's default reading (行 → xíng). On the character page, speak an example word for non-default readings instead, or disable the button for those readings.
+- Rate setting tied to the existing animation speed setting, or its own 0.75× / 1× control.
+- No audio files ship with the app. Recorded syllable clips (about 1,500 files, 10–15 MB) are the fallback only if device voices turn out too poor; their licensing would need checking first.

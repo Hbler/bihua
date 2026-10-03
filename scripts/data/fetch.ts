@@ -3,6 +3,8 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { gunzipSync } from 'node:zlib'
 
+import { unzipSync } from 'fflate'
+
 import { RAW_DIR, RAW_FILES } from './paths.ts'
 
 const HSK_BASE = 'https://raw.githubusercontent.com/krmanik/HSK-3.0/main/New%20HSK%20(2021)'
@@ -30,6 +32,16 @@ const SOURCES: Source[] = [
     file: RAW_FILES.junda,
     url: 'https://lingua.mtsu.edu/chinese-computing/statistics/char/download.php?Which=MO',
     decode: (body) => new TextDecoder('gb18030').decode(body),
+  },
+  {
+    file: RAW_FILES.subtlexWords,
+    url: 'https://www.ugent.be/pp/experimentele-psychologie/en/research/documents/subtlexch/subtlexchwf.zip',
+    decode: (body) => {
+      const files = unzipSync(new Uint8Array(body))
+      const raw = files['SUBTLEX-CH-WF']
+      if (!raw) throw new Error('SUBTLEX-CH-WF not found in zip archive')
+      return new TextDecoder('gb18030').decode(raw)
+    },
   },
   ...['1', '2', '3', '4', '5', '6', '7-9'].map((level) => ({
     file: RAW_FILES.hskHanzi(level),

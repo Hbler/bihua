@@ -56,3 +56,27 @@ export type DictionaryFile = {
   built: string
   chars: CharEntry[]
 }
+
+/** [numbered pinyin, meanings, counterparts (Traditional; omitted when identical)] */
+export type WordReadingRow = [string, string[]] | [string, string[], string[]]
+/** [simplified form, readings, SUBTLEX rank or 0 when unranked] */
+export type WordRow = [string, WordReadingRow[], number]
+/** Compact on-disk word list; rows are already in ranking order. Decode with decodeWords. */
+export type WordsFile = { version: 1; built: string; words: WordRow[] }
+
+export type WordReading = {
+  key: string /* e.g. 'diqiu' for 地球, 'lvse' for 绿色 */
+  syllables: string[]
+  tones: Tone[]
+  pinyin: string /* e.g. 'dì qiú' */
+  meanings: string[]
+  counterparts: string[]
+}
+
+export type WordEntry = {
+  word: string
+  script: Script
+  readings: WordReading[]
+  freqRank: number | null
+  traditional: string[]
+}

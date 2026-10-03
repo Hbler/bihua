@@ -29,6 +29,14 @@
       >.
     </li>
     <li>
+      Word frequency:
+      <a href="https://www.ugent.be/pp/experimentele-psychologie/en/research/documents/subtlexch"
+        >SUBTLEX-CH</a
+      >
+      — Cai, Q., &amp; Brysbaert, M. (2010). SUBTLEX-CH: Chinese word and character frequencies based
+      on film subtitles. PLoS ONE 5(6): e10729.
+    </li>
+    <li>
       HSK 3.0 character and handwriting lists (GF0025-2021), transcribed by
       <a href="https://github.com/krmanik/HSK-3.0">krmanik/HSK-3.0</a>.
     </li>

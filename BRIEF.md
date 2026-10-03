@@ -51,6 +51,7 @@ The user is a beginner Mandarin learner (paid course + Duolingo) who also reads 
 
 - A `拼 / EN` toggle on the search bar: search characters and words by English meaning. Several pinyin syllables find words (`diqiu` → 地球).
 - Word pages show the word's meaning and its characters, with one character's stroke order at a time. Each character page lists words containing it.
+- Word and character pages show the spoken pinyin when tone sandhi changes it (你好 nǐ hǎo → ní hǎo). Text only, no audio.
 - See `docs/features/english-search/PLAN.md`.
 
 ## Data sources
@@ -78,7 +79,7 @@ A build step should preprocess these into compact static JSON (pinyin index, per
 
 - Accounts, sync, progress tracking, spaced repetition, flashcards
 - Handwriting input / on-screen writing practice
-- Example sentences, audio
+- Example sentences, audio (a device-voice button is planned for later: `docs/features/english-search/PLAN.md`, Phase 3)
 - Taiwan stroke order, TOCFL tags
 - Printable practice sheets (possible later)
 
