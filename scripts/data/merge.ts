@@ -169,6 +169,9 @@ export function mergeSources(input: MergeInput): CharEntry[] {
       hsk: hsk.get(char) ?? null,
       hskWriteBand: hskBand.get(char) ?? null,
       radical: mmah?.radical ?? null,
+      components: mmah?.components ?? [],
+      hasUnknownComponent: mmah?.hasUnknownComponent ?? false,
+      etymology: mmah?.etymology ?? null,
       strokeCount: input.strokeCounts.get(char) ?? null,
       hasStrokes: input.strokeCounts.has(char),
     }

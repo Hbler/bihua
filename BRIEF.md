@@ -33,6 +33,7 @@ The user is a beginner Mandarin learner (paid course + Duolingo) who also reads 
 - **Stroke-step strip**: one frame per stroke, the character building up, current stroke highlighted. This is the main thing used while writing on paper.
 - Pinyin (all readings), meanings, radical, stroke count, HSK 3.0 level.
 - Link to the counterpart form (说 ↔ 說).
+- Composition: the parts the character is made of and its radical, each linking to its own page, with the etymology (meaning/sound roles, hint). See `docs/features/character-composition/PLAN.md`.
 - Traditional pages show a small note: "Stroke order follows the PRC standard" (Taiwan MOE order differs for some characters, e.g. 必).
 - Characters without stroke data: still show the character + dictionary info, with a "no stroke data" message instead of the animation/strip.
 

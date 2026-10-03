@@ -6,7 +6,7 @@ import { mergeSources, type MergeInput } from './merge.ts'
 import { parseCedict } from './sources/cedict.ts'
 import { parseJunDa } from './sources/frequency.ts'
 import { parseCharList } from './sources/hsk.ts'
-import { parseMmah } from './sources/mmah.ts'
+import { parseDecomposition, parseMmah } from './sources/mmah.ts'
 
 const CEDICT = `# comment line
 發 发 [fa1] /to send out/to issue/
@@ -82,7 +82,65 @@ describe('parseJunDa', () => {
 
 describe('parseMmah', () => {
   it('converts marked readings to syllable + tone keys, neutral tone as 5', () => {
-    expect(parseMmah(MMAH).get('了')).toEqual({ radical: '亅', readings: ['le5', 'liao3'] })
+    expect(parseMmah(MMAH).get('了')).toMatchObject({ radical: '亅', readings: ['le5', 'liao3'] })
+  })
+})
+
+describe('parseDecomposition', () => {
+  it('reduces nested layouts to leaf parts in order', () => {
+    expect(parseDecomposition('霸', '⿱雨⿰革月')).toEqual({
+      components: ['雨', '革', '月'],
+      hasUnknownComponent: false,
+    })
+    expect(parseDecomposition('爱', '⿱⿱爫冖友').components).toEqual(['爫', '冖', '友'])
+    expect(parseDecomposition('說', '⿰言兌').components).toEqual(['言', '兌'])
+  })
+
+  it('drops repeats and the character itself', () => {
+    expect(parseDecomposition('森', '⿱木⿰木木').components).toEqual(['木'])
+    expect(parseDecomposition('龍', '⿰⿱立月龍').components).toEqual(['立', '月'])
+  })
+
+  it('flags unknown parts', () => {
+    expect(parseDecomposition('发', '⿸？又')).toEqual({
+      components: ['又'],
+      hasUnknownComponent: true,
+    })
+    expect(parseDecomposition('⺀', '？')).toEqual({ components: [], hasUnknownComponent: true })
+    expect(parseDecomposition('x', undefined)).toEqual({
+      components: [],
+      hasUnknownComponent: false,
+    })
+  })
+})
+
+describe('parseMmah', () => {
+  it('reads decomposition and etymology roles', () => {
+    const line = JSON.stringify({
+      character: '说',
+      radical: '讠',
+      pinyin: ['shuō'],
+      decomposition: '⿰讠兑',
+      etymology: { type: 'pictophonetic', phonetic: '兑', semantic: '讠', hint: 'speech' },
+    })
+    expect(parseMmah(line).get('说')).toEqual({
+      radical: '讠',
+      readings: ['shuo1'],
+      components: ['讠', '兑'],
+      hasUnknownComponent: false,
+      etymology: { type: 'pictophonetic', hint: 'speech', semantic: '讠', phonetic: '兑' },
+    })
+  })
+
+  it('ignores missing or unknown etymology types', () => {
+    const lines = [
+      { character: '了', decomposition: '⿱乛亅' },
+      { character: '丁', etymology: { type: 'mystery' } },
+    ]
+      .map((entry) => JSON.stringify(entry))
+      .join('\n')
+    expect(parseMmah(lines).get('了')?.etymology).toBeNull()
+    expect(parseMmah(lines).get('丁')?.etymology).toBeNull()
   })
 })
 
@@ -171,6 +229,22 @@ describe('mergeSources', () => {
   it('puts variant glosses after ordinary ones', () => {
     expect(build().get('倣')!.readings[0].meanings).toEqual(['variant of 仿[fang3]'])
     expect(build().get('仿')!.readings[0].meanings[0]).toBe('to imitate')
+  })
+
+  it('attaches components and etymology from Make Me a Hanzi', () => {
+    const mmah = parseMmah(
+      JSON.stringify({
+        character: '说',
+        decomposition: '⿰讠兑',
+        etymology: { type: 'pictophonetic', semantic: '讠', phonetic: '兑' },
+      }),
+    )
+    expect(build({ mmah }).get('说')).toMatchObject({
+      components: ['讠', '兑'],
+      hasUnknownComponent: false,
+      etymology: { type: 'pictophonetic', semantic: '讠', phonetic: '兑' },
+    })
+    expect(build({ mmah }).get('人')).toMatchObject({ components: [], etymology: null })
   })
 
   it('attaches frequency, HSK, handwriting band, radical and strokes', () => {

@@ -59,17 +59,20 @@ Shared in `src/lib/data/types.ts`, imported by both the pipeline and the app. Sh
 
 ### CharEntry
 
-| Field          | Type                 | Description                                                                               |
-| -------------- | -------------------- | ----------------------------------------------------------------------------------------- |
-| `char`         | `string`             | The character (one code point)                                                            |
-| `script`       | `'S' \| 'T' \| 'ST'` | Simplified-only, Traditional-only, or identical in both                                   |
-| `readings`     | `Reading[]`          | One per distinct pinyin, ordered by CC-CEDICT order                                       |
-| `freqRank`     | `number \| null`     | Jun Da rank (1 = most common); Traditional inherits from counterpart                      |
-| `hsk`          | `1–7 \| null`        | HSK 3.0 level; `7` = band 7–9                                                             |
-| `hskWriteBand` | `1–3 \| null`        | HSK 3.0 handwriting list band: 1 elementary (1–3), 2 intermediate (4–6), 3 advanced (7–9) |
-| `radical`      | `string \| null`     | From Make Me a Hanzi                                                                      |
-| `strokeCount`  | `number \| null`     | From stroke data (`strokes.length`)                                                       |
-| `hasStrokes`   | `boolean`            | Whether `strokes/{char}.json` exists                                                      |
+| Field                 | Type                 | Description                                                                                  |
+| --------------------- | -------------------- | -------------------------------------------------------------------------------------------- |
+| `char`                | `string`             | The character (one code point)                                                               |
+| `script`              | `'S' \| 'T' \| 'ST'` | Simplified-only, Traditional-only, or identical in both                                      |
+| `readings`            | `Reading[]`          | One per distinct pinyin, ordered by CC-CEDICT order                                          |
+| `freqRank`            | `number \| null`     | Jun Da rank (1 = most common); Traditional inherits from counterpart                         |
+| `hsk`                 | `1–7 \| null`        | HSK 3.0 level; `7` = band 7–9                                                                |
+| `hskWriteBand`        | `1–3 \| null`        | HSK 3.0 handwriting list band: 1 elementary (1–3), 2 intermediate (4–6), 3 advanced (7–9)    |
+| `radical`             | `string \| null`     | From Make Me a Hanzi                                                                         |
+| `strokeCount`         | `number \| null`     | From stroke data (`strokes.length`)                                                          |
+| `hasStrokes`          | `boolean`            | Whether `strokes/{char}.json` exists                                                         |
+| `components`          | `string[]`           | Leaf components of the decomposition, no repeats or self (see character-composition/PLAN.md) |
+| `hasUnknownComponent` | `boolean`            | Decomposition contains unidentified parts (发 = ？ + 又)                                     |
+| `etymology`           | `Etymology \| null`  | `{ type, hint?, semantic?, phonetic? }` from Make Me a Hanzi                                 |
 
 ### Reading
 
@@ -206,7 +209,7 @@ export const charDataLoader: HanziWriterOptions['charDataLoader'] = (char, onLoa
 
 ## Performance Requirements
 
-- `dict.json` ≤ 4 MB raw / ≤ 650 KB gzip (first build: 3.8 MB / 590 KB; gzip is what is downloaded).
+- `dict.json` ≤ 6 MB raw / ≤ 800 KB gzip (with composition data: 5.3 MB / 751 KB; gzip is what is downloaded, once, then precached).
 - Dictionary parse + index ≤ 200 ms on a mid-range phone.
 - Search results ≤ 100 ms after input settles (debounce 100 ms; lookup itself < 5 ms).
 - JS bundle (excluding data) ≤ 100 KB gzip.

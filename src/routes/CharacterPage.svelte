@@ -5,6 +5,7 @@
   import { router } from '$lib/router.svelte'
 
   import CharacterInfo from '../components/CharacterInfo.svelte'
+  import CompositionSection from '../components/CompositionSection.svelte'
   import StrokeAnimation from '../components/StrokeAnimation.svelte'
   import StrokeSteps from '../components/StrokeSteps.svelte'
 
@@ -12,6 +13,12 @@
 
   const entry = $derived(dict.byChar.get(char))
   const lang = $derived(entry?.script === 'T' ? 'zh-Hant' : 'zh-Hans')
+  const isComponent = $derived.by(() => {
+    if (!entry || entry.readings.length === 0) {
+      return [...dict.byChar.values()].some((e) => e.components.includes(char))
+    }
+    return false
+  })
 
   let strokes = $state<StrokeResult | 'loading'>('loading')
 
@@ -33,7 +40,7 @@
 
 <a class="back" href={searchHref(router.lastSearch)}>← Search</a>
 
-{#if !entry && strokes !== 'loading' && strokes.kind === 'missing'}
+{#if !entry && !isComponent && strokes !== 'loading' && strokes.kind === 'missing'}
   <section class="not-found">
     <p class="big" {lang}>{char}</p>
     <p>This character isn't in the dictionary.</p>
@@ -58,8 +65,20 @@
       {/if}
       {#if entry}
         <CharacterInfo {entry} />
+        {#if entry.readings.length === 0}
+          <p class="note">
+            {isComponent
+              ? 'Component form — no dictionary entry.'
+              : 'No dictionary entry for this character.'}
+          </p>
+        {/if}
+        <CompositionSection {entry} {dict} />
       {:else}
-        <p class="note">No dictionary entry for this character.</p>
+        <p class="note">
+          {isComponent
+            ? 'Component form — no dictionary entry.'
+            : 'No dictionary entry for this character.'}
+        </p>
       {/if}
     </section>
   </div>

@@ -21,7 +21,7 @@
       Readings and meanings:
       <a href="https://www.mdbg.net/chinese/dictionary?page=cc-cedict">CC-CEDICT</a> (CC BY-SA 4.0).
     </li>
-    <li>Radicals and main readings: Make Me a Hanzi dictionary (LGPL).</li>
+    <li>Radicals, main readings, composition and etymology: Make Me a Hanzi dictionary (LGPL).</li>
     <li>
       Character frequency: Jun Da,
       <a href="https://lingua.mtsu.edu/chinese-computing/statistics/"

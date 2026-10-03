@@ -39,6 +39,9 @@ export const testDictFile: DictionaryFile = {
       radical: '亅',
       strokeCount: 2,
       hasStrokes: true,
+      components: [],
+      hasUnknownComponent: false,
+      etymology: null,
     },
     // Tone pair: 好 with hao3 and hao4
     {
@@ -66,6 +69,9 @@ export const testDictFile: DictionaryFile = {
       radical: '女',
       strokeCount: 6,
       hasStrokes: true,
+      components: ['女'],
+      hasUnknownComponent: false,
+      etymology: { type: 'ideographic', hint: 'A woman is good', semantic: '女' },
     },
     // Script variant: 说 (Simplified)
     {
@@ -86,6 +92,9 @@ export const testDictFile: DictionaryFile = {
       radical: '讠',
       strokeCount: 9,
       hasStrokes: true,
+      components: [],
+      hasUnknownComponent: false,
+      etymology: null,
     },
     // Script variant: 說 (Traditional)
     {
@@ -106,6 +115,9 @@ export const testDictFile: DictionaryFile = {
       radical: '言',
       strokeCount: 14,
       hasStrokes: true,
+      components: [],
+      hasUnknownComponent: false,
+      etymology: null,
     },
     // Script variant: 人 (both Simplified and Traditional, same character)
     {
@@ -126,6 +138,9 @@ export const testDictFile: DictionaryFile = {
       radical: '人',
       strokeCount: 2,
       hasStrokes: true,
+      components: [],
+      hasUnknownComponent: false,
+      etymology: null,
     },
     // Character without freqRank (but has stroke data)
     {
@@ -146,6 +161,9 @@ export const testDictFile: DictionaryFile = {
       radical: '丨',
       strokeCount: 4,
       hasStrokes: true,
+      components: [],
+      hasUnknownComponent: false,
+      etymology: null,
     },
     // Character with HSK 7 and hskWriteBand
     {
@@ -166,6 +184,9 @@ export const testDictFile: DictionaryFile = {
       radical: '目',
       strokeCount: 12,
       hasStrokes: true,
+      components: [],
+      hasUnknownComponent: false,
+      etymology: null,
     },
     // Reading with empty meanings and no strokeCount (should be filtered in search)
     {
@@ -186,6 +207,9 @@ export const testDictFile: DictionaryFile = {
       radical: null,
       strokeCount: null,
       hasStrokes: false,
+      components: [],
+      hasUnknownComponent: false,
+      etymology: null,
     },
     // HSK level 3 with hskWriteBand
     {
@@ -206,6 +230,9 @@ export const testDictFile: DictionaryFile = {
       radical: '子',
       strokeCount: 8,
       hasStrokes: true,
+      components: [],
+      hasUnknownComponent: false,
+      etymology: null,
     },
     // HSK level 4 with hskWriteBand
     {
@@ -226,6 +253,9 @@ export const testDictFile: DictionaryFile = {
       radical: '阝',
       strokeCount: 10,
       hasStrokes: true,
+      components: [],
+      hasUnknownComponent: false,
+      etymology: null,
     },
   ],
 }

@@ -21,6 +21,19 @@ export type Reading = {
   counterparts: string[]
 }
 
+export type EtymologyType = 'pictophonetic' | 'ideographic' | 'pictographic'
+
+/** How a character was formed, from Make Me a Hanzi. */
+export type Etymology = {
+  type: EtymologyType
+  /** e.g. "The light of the sun 日 and moon 月" or "speech". */
+  hint?: string
+  /** Component carrying the meaning (讠 in 说). */
+  semantic?: string
+  /** Component carrying the sound (兑 in 说). */
+  phonetic?: string
+}
+
 export type CharEntry = {
   char: string
   script: Script
@@ -31,6 +44,11 @@ export type CharEntry = {
   radical: string | null
   strokeCount: number | null
   hasStrokes: boolean
+  /** Leaf components of the decomposition, in order, without repeats or the character itself. */
+  components: string[]
+  /** True when the decomposition has parts Make Me a Hanzi couldn't identify (发 = ？ + 又). */
+  hasUnknownComponent: boolean
+  etymology: Etymology | null
 }
 
 export type DictionaryFile = {

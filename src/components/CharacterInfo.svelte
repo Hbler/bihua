@@ -43,27 +43,29 @@
   </div>
 </dl>
 
-<ul class="readings">
-  {#each entry.readings as reading (`${reading.syllable}${reading.tone}`)}
-    <li>
-      <p class="pinyin">
-        {reading.pinyin}
-        {#each reading.counterparts as counterpart (counterpart)}
-          <a class="counterpart" lang={counterpartLang} href={characterHref(counterpart)}
-            >{counterpart}</a
-          >
-        {/each}
-      </p>
-      {#if reading.meanings.length}
-        <ul class="meanings">
-          {#each reading.meanings.slice(0, MAX_MEANINGS) as meaning (meaning)}
-            <li>{meaning}</li>
+{#if entry.readings.length > 0}
+  <ul class="readings">
+    {#each entry.readings as reading (`${reading.syllable}${reading.tone}`)}
+      <li>
+        <p class="pinyin">
+          {reading.pinyin}
+          {#each reading.counterparts as counterpart (counterpart)}
+            <a class="counterpart" lang={counterpartLang} href={characterHref(counterpart)}
+              >{counterpart}</a
+            >
           {/each}
-        </ul>
-      {/if}
-    </li>
-  {/each}
-</ul>
+        </p>
+        {#if reading.meanings.length}
+          <ul class="meanings">
+            {#each reading.meanings.slice(0, MAX_MEANINGS) as meaning (meaning)}
+              <li>{meaning}</li>
+            {/each}
+          </ul>
+        {/if}
+      </li>
+    {/each}
+  </ul>
+{/if}
 
 <style>
   .meta {
