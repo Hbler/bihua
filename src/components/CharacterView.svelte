@@ -118,33 +118,12 @@
               : 'No dictionary entry for this character.'}
           </p>
         {/if}
-        <CompositionSection {entry} {dict} />
       {:else}
         <p class="note">
           {isComponent
             ? 'Component form — no dictionary entry.'
             : 'No dictionary entry for this character.'}
         </p>
-      {/if}
-
-      {#if wordStatus === 'loading'}
-        <section class="words">
-          <h2>Words with {char}</h2>
-          <p class="status">Loading words…</p>
-        </section>
-      {:else if wordStatus === 'error'}
-        <section class="words">
-          <h2>Words with {char}</h2>
-          <div class="status-error">
-            <p>Couldn't load words.</p>
-            <button type="button" class="retry-btn" onclick={handleRetryWords}>Retry</button>
-          </div>
-        </section>
-      {:else if wordHits.length > 0}
-        <section class="words">
-          <h2>Words with {char}</h2>
-          <WordList hits={wordHits} pageSize={12} highlight={char} script={wordScript} />
-        </section>
       {/if}
     </section>
   </div>
@@ -163,6 +142,30 @@
         online.
       </p>
     {/if}
+  {/if}
+
+  {#if entry}
+    <CompositionSection {entry} {dict} />
+  {/if}
+
+  {#if wordStatus === 'loading'}
+    <section class="words">
+      <h2>Words with {char}</h2>
+      <p class="status">Loading words…</p>
+    </section>
+  {:else if wordStatus === 'error'}
+    <section class="words">
+      <h2>Words with {char}</h2>
+      <div class="status-error">
+        <p>Couldn't load words.</p>
+        <button type="button" class="retry-btn" onclick={handleRetryWords}>Retry</button>
+      </div>
+    </section>
+  {:else if wordHits.length > 0}
+    <section class="words">
+      <h2>Words with {char}</h2>
+      <WordList hits={wordHits} pageSize={12} highlight={char} script={wordScript} />
+    </section>
   {/if}
 {/if}
 
