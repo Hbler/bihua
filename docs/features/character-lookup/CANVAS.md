@@ -1,6 +1,6 @@
 # REASONS Canvas: Character Lookup (v1)
 
-**Status**: shipped (2026-10-02) · follow-up O12 (scroll position) approved 2026-10-08, in progress
+**Status**: shipped (2026-10-02) · follow-up O12 (scroll position) done 2026-10-08
 **Last synced with code**: 2026-10-07 (commit 4becfc9)
 
 ---
@@ -33,9 +33,9 @@ Search
 
 Navigation
 
-- [ ] Opening a new page (a result, a link, a counterpart, a word, a part) shows it from the top.
-- [ ] Back and Forward return to the scroll position that page had.
-- [ ] Updates within a page (typing a search, choosing a character on the word page) don't move the scroll position.
+- [x] Opening a new page (a result, a link, a counterpart, a word, a part) shows it from the top.
+- [x] Back and Forward return to the scroll position that page had.
+- [x] Updates within a page (typing a search, choosing a character on the word page) never reset the scroll position. (When typing shortens the results, the browser's scroll anchoring may shift the view slightly to keep a visible result in place; that is browser behaviour, unchanged from before.)
 
 Filters
 
@@ -208,8 +208,8 @@ Static files from the app's own origin: `GET {BASE_URL}data/dict.json` (`{ versi
 - [x] **O8**: Long meanings wrap in results; all meanings listed on the character page (`2a58fb3`)
 - [x] **O9**: Stroke strip moved directly under the animation (`8e9b7e3`)
 - [ ] **O10**: Pipeline integration test — run `build.ts` on small fixture files and snapshot the output (planned in the v1 tech spec; never built; the parsers and merge have unit tests)
-- [ ] **O12**: Scroll position on navigation (Navigation items in R) — verify by: unit test of the pure "new entry vs returning entry" decision; browser check at phone width: scroll a results list, open a character (top), Back (list position restored), open a word from a scrolled character page (top), choose another character on the word page (no jump); plus the remaining O11 checks in headless Chrome at tablet (768 px) and desktop (1280 px) widths and in offline mode
-- [ ] **O11**: Manual QA — the Definition of Done on phone, tablet and desktop, including DevTools offline mode (covers the later features' browser passes too) Phone: used daily by the user since about 2026-10-03 with no issues except the scroll bug (→ O12). Tablet, desktop and offline are checked as part of O12.
+- [x] **O12**: Scroll position on navigation (Navigation items in R) — verify by: unit test of the pure "new entry vs returning entry" decision; browser check at phone width: scroll a results list, open a character (top), Back (list position restored), open a word from a scrolled character page (top), choose another character on the word page (no jump); plus the remaining O11 checks in headless Chrome at tablet (768 px) and desktop (1280 px) widths and in offline mode — done 2026-10-08: `src/lib/scroll.ts` (+ tests), `router.svelte.ts`; checked on a production build in headless Chrome
+- [x] **O11**: Manual QA of this feature's Definition of Done — phone: daily use by the user since about 2026-10-03; tablet (768 px) and desktop (1280 px): no horizontal scrolling on search, character, word, English and About pages, layouts checked on screenshots; offline (server actually stopped): search, word search and a viewed character work, an unviewed character shows the offline message. Done 2026-10-08. The other features' own browser passes stay open in their canvases.
 
 ---
 
@@ -225,7 +225,8 @@ Bound by [docs/SAFEGUARDS.md](../../SAFEGUARDS.md). Feature-specific: none beyon
 
 ## Change Log
 
-| Date       | Section | Change                                                                                                         | Reason                                                                                                                        |
-| ---------- | ------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| 2026-10-07 | All     | Migrated from `PRD.md` and `TECH-SPEC.md` (now in `docs/archive/character-lookup/`), verified against the code | Adopting REASONS canvases                                                                                                     |
-| 2026-10-07 | R, A, O | Navigation rules for scroll position; new O12                                                                  | User found on the phone that a newly opened page keeps the previous page's scroll position; the router has no scroll handling |
+| Date       | Section | Change                                                                                                         | Reason                                                                                                                                                                                                             |
+| ---------- | ------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-10-07 | All     | Migrated from `PRD.md` and `TECH-SPEC.md` (now in `docs/archive/character-lookup/`), verified against the code | Adopting REASONS canvases                                                                                                                                                                                          |
+| 2026-10-07 | R, A, O | Navigation rules for scroll position; new O12                                                                  | User found on the phone that a newly opened page keeps the previous page's scroll position; the router has no scroll handling                                                                                      |
+| 2026-10-08 | R, O    | Typing-scroll wording made precise; O11 and O12 done                                                           | Browser check: the only movement while typing is the browser's scroll anchoring (same on the old live site); offline checked with the server stopped, since emulated offline doesn't cover service-worker requests |

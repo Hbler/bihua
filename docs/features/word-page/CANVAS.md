@@ -55,7 +55,7 @@ A page for a multi-character word: its pinyin, meanings and counterpart, with th
 ## O — Operations
 
 - [x] **O1**: Shared `CharacterView`; word page with character cards, counterpart link and selected-character content; `#/w/<word>/<char>` with `replaceState` (`90e303b`)
-- [ ] **O2**: Browser pass: character switching, deep link with a selected character, phone and desktop widths (part of character-lookup O11)
+- [ ] **O2**: Browser pass: character switching, deep link with a selected character, phone and desktop widths (open; not covered by character-lookup O11)
 
 ---
 

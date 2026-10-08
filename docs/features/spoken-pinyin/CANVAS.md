@@ -59,7 +59,7 @@ Rules, applied to one word's tones (`src/lib/pinyin/sandhi.ts`):
 
 - [x] **O1**: `spokenTones` with tests (你好, 很好, 展览馆, 一个, 一天, 一样, 第一, 不是, 不对, 不好, 地球, 东西) (`90e303b`)
 - [x] **O2**: Spoken line and per-card spoken tones on the word page; tone-change notes on character pages (`90e303b`)
-- [ ] **O3**: Browser pass on 你好, 一个, 展览馆 and the 一/不 character pages (part of character-lookup O11)
+- [ ] **O3**: Browser pass on 你好, 一个, 展览馆 and the 一/不 character pages (open; not covered by character-lookup O11)
 
 ---
 

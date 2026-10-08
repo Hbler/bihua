@@ -96,7 +96,7 @@ The index is built lazily on the first English search (`getOrBuildEnglishIndex`,
 - [x] **O2**: Register labels as tags, ranked after unlabelled glosses within a tier (`8de944a`)
 - [x] **O3**: Mode toggle, `searchMode` setting, `#/en/<q>` route with tests, grouped results UI (`8de944a`)
 - [x] **O4**: Index build time measured on the real `dict.json` (≈ 130 ms desktop)
-- [ ] **O5**: Browser pass: earth, water, eat, to eat, big, he (both modes), at phone and desktop widths (part of character-lookup O11)
+- [ ] **O5**: Browser pass: earth, water, eat, to eat, big, he (both modes), at phone and desktop widths (open; not covered by character-lookup O11)
 
 ---
 

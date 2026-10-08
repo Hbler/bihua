@@ -92,7 +92,7 @@ Worker requests: `searchWordsPinyin`, `searchWordsEnglish`, `lookupWord`, `words
 - [x] **O1**: Word data — CC-CEDICT multi-character parsing, SUBTLEX-CH merge, compact `words.json`, unit tests (`8487fa5`)
 - [x] **O2**: Word search in a background worker: pinyin keys with tone filter, English word tiers, pasted-word lookup, Words groups in the UI (`14592bc`)
 - [x] **O3**: Data spot-check: 地球, 说话/說話, 西安, 了解/瞭解, 头发/頭髮 (done during the migration, 2026-10-07: readings, meanings, counterparts and ranks as expected)
-- [ ] **O4**: Browser pass: "earth" in English mode, `diqiu` and `xian` in pinyin mode, offline after first load, at phone and desktop widths (part of character-lookup O11)
+- [ ] **O4**: Browser pass: "earth" in English mode, `diqiu` and `xian` in pinyin mode, offline after first load, at phone and desktop widths (open; not covered by character-lookup O11)
 
 ---
 

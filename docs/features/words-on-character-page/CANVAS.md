@@ -53,7 +53,7 @@ On a character's page, list the most common words containing it, each linking to
 ## O — Operations
 
 - [x] **O1**: By-character word index in the worker, "Words with X" section with highlight, 12 per page and Show more, Traditional forms, word-page exclusion (`fa5a995`)
-- [ ] **O2**: Browser pass: words on 地's page, on a Traditional-only character, and on the word page, at phone and desktop widths (part of character-lookup O11)
+- [ ] **O2**: Browser pass: words on 地's page, on a Traditional-only character, and on the word page, at phone and desktop widths (open; not covered by character-lookup O11)
 
 ---
 
