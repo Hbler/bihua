@@ -1,6 +1,6 @@
 # REASONS Canvas: Character Lookup (v1)
 
-**Status**: shipped (2026-10-02)
+**Status**: shipped (2026-10-02) · follow-up O12 (scroll position) approved 2026-10-08, in progress
 **Last synced with code**: 2026-10-07 (commit 4becfc9)
 
 ---
@@ -30,6 +30,12 @@ Search
 - [x] Pasting or typing a single Han character (Simplified or Traditional) opens its page.
 - [x] Input that is neither a valid syllable nor a Han character shows `No syllable "<input>".`
 - [x] The current search is in the URL (`#/search/shi4`) and survives a reload.
+
+Navigation
+
+- [ ] Opening a new page (a result, a link, a counterpart, a word, a part) shows it from the top.
+- [ ] Back and Forward return to the scroll position that page had.
+- [ ] Updates within a page (typing a search, choosing a character on the word page) don't move the scroll position.
 
 Filters
 
@@ -71,6 +77,8 @@ Platform
 | Character with strokes but no dictionary entry | Strokes shown with "No dictionary entry for this character." (component forms: see character-composition)                                                    |
 | Offline, stroke file never viewed              | "Couldn't load the stroke order. It is available offline after viewing a character once…"                                                                    |
 | HSK filter on, nothing at that level           | `No HSK ≤ N characters for "shi". Turn off the HSK filter to see all.`                                                                                       |
+| Page opened after scrolling another page       | Starts at the top (bug found on the phone 2026-10-07: the new page kept the old scroll position)                                                             |
+| Back to a long results list                    | Returns to where the list was scrolled                                                                                                                       |
 | `localStorage` unavailable                     | Defaults used; app works normally                                                                                                                            |
 
 ### Out of Scope
@@ -158,6 +166,7 @@ A Vite + Svelte 5 + TypeScript static app. A local Node script merges open datas
 - Animation (`StrokeAnimation.svelte`): Hanzi Writer created in an `$effect`, sized from the container, recreated on character change; speed persisted.
 - Strokes are copied from `node_modules/hanzi-writer-data` into `dist/strokes/` by a `vite.config.ts` plugin; the pipeline reads the same package, so `hasStrokes` matches what is deployed.
 - Routing: hash router; typing updates the hash with `replaceState`; choosing a result is a normal navigation so Back returns to the list.
+- Scroll position: browsers keep the scroll position on hash navigation, so the router manages it. `history.scrollRestoration = 'manual'`; each history entry gets an id in `history.state` and its scroll position is remembered (in memory, keyed by id) before leaving. On `hashchange`: if the entry has a remembered position (Back/Forward), restore it once the page has rendered; otherwise (a new page) scroll to the top. `replaceState` updates fire no `hashchange`, so they never move the page.
 
 ### Open questions from v1, as resolved
 
@@ -199,7 +208,8 @@ Static files from the app's own origin: `GET {BASE_URL}data/dict.json` (`{ versi
 - [x] **O8**: Long meanings wrap in results; all meanings listed on the character page (`2a58fb3`)
 - [x] **O9**: Stroke strip moved directly under the animation (`8e9b7e3`)
 - [ ] **O10**: Pipeline integration test — run `build.ts` on small fixture files and snapshot the output (planned in the v1 tech spec; never built; the parsers and merge have unit tests)
-- [ ] **O11**: Manual QA — the Definition of Done on phone, tablet and desktop, including DevTools offline mode (covers the later features' browser passes too)
+- [ ] **O12**: Scroll position on navigation (Navigation items in R) — verify by: unit test of the pure "new entry vs returning entry" decision; browser check at phone width: scroll a results list, open a character (top), Back (list position restored), open a word from a scrolled character page (top), choose another character on the word page (no jump); plus the remaining O11 checks in headless Chrome at tablet (768 px) and desktop (1280 px) widths and in offline mode
+- [ ] **O11**: Manual QA — the Definition of Done on phone, tablet and desktop, including DevTools offline mode (covers the later features' browser passes too) Phone: used daily by the user since about 2026-10-03 with no issues except the scroll bug (→ O12). Tablet, desktop and offline are checked as part of O12.
 
 ---
 
@@ -215,6 +225,7 @@ Bound by [docs/SAFEGUARDS.md](../../SAFEGUARDS.md). Feature-specific: none beyon
 
 ## Change Log
 
-| Date       | Section | Change                                                                                                         | Reason                    |
-| ---------- | ------- | -------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| 2026-10-07 | All     | Migrated from `PRD.md` and `TECH-SPEC.md` (now in `docs/archive/character-lookup/`), verified against the code | Adopting REASONS canvases |
+| Date       | Section | Change                                                                                                         | Reason                                                                                                                        |
+| ---------- | ------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| 2026-10-07 | All     | Migrated from `PRD.md` and `TECH-SPEC.md` (now in `docs/archive/character-lookup/`), verified against the code | Adopting REASONS canvases                                                                                                     |
+| 2026-10-07 | R, A, O | Navigation rules for scroll position; new O12                                                                  | User found on the phone that a newly opened page keeps the previous page's scroll position; the router has no scroll handling |

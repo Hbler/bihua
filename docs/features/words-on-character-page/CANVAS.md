@@ -30,7 +30,7 @@ On a character's page, list the most common words containing it, each linking to
 
 ### Out of Scope
 
-- Characters that contain this character as a part: a separate, requested feature ([characters-containing](../characters-containing/CANVAS.md), draft).
+- Characters that contain this character as a part: a separate feature ([component-of](../component-of/CANVAS.md), draft).
 
 ## E — Entities
 
