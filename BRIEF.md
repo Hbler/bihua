@@ -56,14 +56,15 @@ The user is a beginner Mandarin learner (paid course + Duolingo) who also reads 
 
 ## Data sources
 
-| Need                                 | Source                                                              | License note                                                           |
-| ------------------------------------ | ------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Stroke paths, radical, decomposition | Make Me a Hanzi / `hanzi-writer-data`                               | Arphic Public License (graphics) — fine for a free app; include notice |
-| Stroke rendering/animation           | Hanzi Writer                                                        | MIT                                                                    |
-| Readings, meanings, S↔T mapping      | CC-CEDICT                                                           | CC BY-SA 4.0 — attribute                                               |
-| Frequency ranking                    | Jun Da character frequency list (or SUBTLEX-CH)                     | check terms                                                            |
-| Word frequency                       | SUBTLEX-CH word list                                                | check terms                                                            |
-| HSK levels                           | HSK 3.0 (GF0025-2021) character list + handwriting list, levels 1–9 | public standard                                                        |
+| Need                                   | Source                                                                                | License note                                                                                        |
+| -------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Stroke paths, radical, decomposition   | Make Me a Hanzi / `hanzi-writer-data`                                                 | Arphic Public License (graphics) — fine for a free app; include notice                              |
+| Stroke rendering/animation             | Hanzi Writer                                                                          | MIT                                                                                                 |
+| Readings, meanings, S↔T mapping        | CC-CEDICT                                                                             | CC BY-SA 4.0 — attribute                                                                            |
+| Frequency ranking                      | Jun Da character frequency list (or SUBTLEX-CH)                                       | check terms                                                                                         |
+| Word frequency                         | SUBTLEX-CH word list                                                                  | check terms                                                                                         |
+| HSK levels                             | HSK 3.0 (GF0025-2021) character list + handwriting list, levels 1–9                   | public standard                                                                                     |
+| Syllable audio (candidate, not in use) | 汉语拼音网 syllable chart, http://yinjie.hanyupinyin.cn/ — tones 1–4, no neutral tone | no license stated; needs permission before use. See `docs/features/english-search/PLAN.md`, Phase 3 |
 
 A build step should preprocess these into compact static JSON (pinyin index, per-character entries), so the app ships no raw dictionaries.
 
