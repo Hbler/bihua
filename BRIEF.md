@@ -33,7 +33,7 @@ The user is a beginner Mandarin learner (paid course + Duolingo) who also reads 
 - **Stroke-step strip**: one frame per stroke, the character building up, current stroke highlighted. This is the main thing used while writing on paper.
 - Pinyin (all readings), meanings, radical, stroke count, HSK 3.0 level.
 - Link to the counterpart form (说 ↔ 說).
-- Composition: the parts the character is made of and its radical, each linking to its own page, with the etymology (meaning/sound roles, hint). See `docs/features/character-composition/PLAN.md`.
+- Composition: the parts the character is made of and its radical, each linking to its own page, with the etymology (meaning/sound roles, hint). See `docs/features/character-composition/CANVAS.md`.
 - Traditional pages show a small note: "Stroke order follows the PRC standard" (Taiwan MOE order differs for some characters, e.g. 必).
 - Characters without stroke data: still show the character + dictionary info, with a "no stroke data" message instead of the animation/strip.
 
@@ -52,19 +52,19 @@ The user is a beginner Mandarin learner (paid course + Duolingo) who also reads 
 - A `拼 / EN` toggle on the search bar: search characters and words by English meaning. Several pinyin syllables find words (`diqiu` → 地球).
 - Word pages show the word's meaning and its characters, with one character's stroke order at a time. Each character page lists words containing it.
 - Word and character pages show the spoken pinyin when tone sandhi changes it (你好 nǐ hǎo → ní hǎo). Text only, no audio.
-- See `docs/features/english-search/PLAN.md`.
+- See the canvases in `docs/features/`: `english-search`, `word-search`, `word-page`, `spoken-pinyin`, `words-on-character-page`.
 
 ## Data sources
 
-| Need                                   | Source                                                                                | License note                                                                                        |
-| -------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Stroke paths, radical, decomposition   | Make Me a Hanzi / `hanzi-writer-data`                                                 | Arphic Public License (graphics) — fine for a free app; include notice                              |
-| Stroke rendering/animation             | Hanzi Writer                                                                          | MIT                                                                                                 |
-| Readings, meanings, S↔T mapping        | CC-CEDICT                                                                             | CC BY-SA 4.0 — attribute                                                                            |
-| Frequency ranking                      | Jun Da character frequency list (or SUBTLEX-CH)                                       | check terms                                                                                         |
-| Word frequency                         | SUBTLEX-CH word list                                                                  | check terms                                                                                         |
-| HSK levels                             | HSK 3.0 (GF0025-2021) character list + handwriting list, levels 1–9                   | public standard                                                                                     |
-| Syllable audio (candidate, not in use) | 汉语拼音网 syllable chart, http://yinjie.hanyupinyin.cn/ — tones 1–4, no neutral tone | no license stated; needs permission before use. See `docs/features/english-search/PLAN.md`, Phase 3 |
+| Need                                   | Source                                                                                | License note                                                                               |
+| -------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Stroke paths, radical, decomposition   | Make Me a Hanzi / `hanzi-writer-data`                                                 | Arphic Public License (graphics) — fine for a free app; include notice                     |
+| Stroke rendering/animation             | Hanzi Writer                                                                          | MIT                                                                                        |
+| Readings, meanings, S↔T mapping        | CC-CEDICT                                                                             | CC BY-SA 4.0 — attribute                                                                   |
+| Frequency ranking                      | Jun Da character frequency list (or SUBTLEX-CH)                                       | check terms                                                                                |
+| Word frequency                         | SUBTLEX-CH word list                                                                  | check terms                                                                                |
+| HSK levels                             | HSK 3.0 (GF0025-2021) character list + handwriting list, levels 1–9                   | public standard                                                                            |
+| Syllable audio (candidate, not in use) | 汉语拼音网 syllable chart, http://yinjie.hanyupinyin.cn/ — tones 1–4, no neutral tone | no license stated; needs permission before use. See `docs/features/device-voice/CANVAS.md` |
 
 A build step should preprocess these into compact static JSON (pinyin index, per-character entries), so the app ships no raw dictionaries.
 
@@ -80,7 +80,7 @@ A build step should preprocess these into compact static JSON (pinyin index, per
 
 - Accounts, sync, progress tracking, spaced repetition, flashcards
 - Handwriting input / on-screen writing practice
-- Example sentences, audio (a device-voice button is planned for later: `docs/features/english-search/PLAN.md`, Phase 3)
+- Example sentences, audio (a device-voice button is planned for later: `docs/features/device-voice/CANVAS.md`)
 - Taiwan stroke order, TOCFL tags
 - Printable practice sheets (possible later)
 

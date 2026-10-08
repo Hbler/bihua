@@ -1,3 +1,5 @@
+> **Archived 2026-10-07**, superseded by [character-composition](../../features/character-composition/CANVAS.md). Kept for history only; the canvases are the source of truth.
+
 # Character composition
 
 Show what a character is made of on its page, with every part linking to that part's own page.

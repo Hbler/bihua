@@ -1,3 +1,5 @@
+> **Archived 2026-10-07**, superseded by [english-search](../../features/english-search/CANVAS.md), [word-search](../../features/word-search/CANVAS.md), [word-page](../../features/word-page/CANVAS.md), [spoken-pinyin](../../features/spoken-pinyin/CANVAS.md), [words-on-character-page](../../features/words-on-character-page/CANVAS.md) and [device-voice](../../features/device-voice/CANVAS.md). Kept for history only; the canvases are the source of truth.
+
 # English search
 
 Search by English meaning ("earth") and get every character with that meaning, ranked, so near-synonyms (地 dì, 土 tǔ) can be compared side by side.

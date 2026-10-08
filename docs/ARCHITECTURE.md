@@ -74,11 +74,24 @@
 
 - **SearchPage**: search bar, filters (script toggle, HSK toggle + level, handwriting-only), result list.
 - **CharacterPage**: big animation with replay/speed, stroke strip, readings/meanings, radical, stroke count, HSK tag, counterpart links, PRC-order note on Traditional pages, fallback when no strokes.
+- **WordPage**: the word, its pinyin (and spoken form), meanings and one card per character; the selected character's content below it.
+- **CharacterView** (component): the character content shared by CharacterPage and WordPage: animation, stroke strip, info, composition, words containing the character.
 - **AboutPage**: data credits and licenses.
 
 ### Router (`src/lib/router.svelte.ts`)
 
-- Hash routes: `#/` (search), `#/search/<query>` (search with query, so a search is linkable), `#/<char>` (character page, a single Han character, URL-decoded), `#/about`.
+- Hash routes: `#/` (search), `#/search/<query>` (pinyin search, linkable), `#/en/<query>` (English search), `#/w/<word>` and `#/w/<word>/<char>` (word page with a selected character), `#/<char>` (character page, a single Han character, URL-decoded), `#/about`. Parsing lives in the pure `src/lib/route.ts`.
+
+## Domain Model
+
+Shared types live in `src/lib/data/types.ts`. Feature canvases refer to these instead of redefining them.
+
+- **Character** (`CharEntry`): one code point with its script (`S`, `T` or `ST`), readings, frequency rank, HSK level and handwriting band, radical, stroke count and availability, components and etymology.
+- **Reading**: one pronunciation of a character (toneless syllable with ü as `v`, tone 1–5, display pinyin), its meanings and its **counterparts** (other-script forms for that reading).
+- **Word** (`WordEntry`): a multi-character CC-CEDICT entry with readings (syllables, tones, pinyin, meanings, counterparts) and a SUBTLEX-CH rank.
+- **Settings**: script (`S`/`T`/`ST`), HSK filter, level and handwriting-only, search mode (pinyin/English), animation speed.
+
+A character has 1..n readings; each reading has 0..n counterparts. A word contains 2..n characters. Traditional characters take frequency and HSK level from their Simplified counterparts.
 
 ## Data Flow
 

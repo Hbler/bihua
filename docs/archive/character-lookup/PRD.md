@@ -1,3 +1,5 @@
+> **Archived 2026-10-07**, superseded by [character-lookup](../../features/character-lookup/CANVAS.md). Kept for history only; the canvases are the source of truth.
+
 # Product Requirements: Character Lookup (v1)
 
 ## Overview

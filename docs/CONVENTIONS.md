@@ -1,4 +1,6 @@
-# Code Conventions
+# Code Conventions (Norms)
+
+Cross-cutting engineering standards. Every REASONS canvas links here as its **N** section.
 
 ## Naming
 
@@ -95,6 +97,30 @@ Components that wrap Hanzi Writer create the instance in an `$effect`, return a 
 - Mobile first; plain CSS with custom properties for colors and spacing; light and dark themes via `prefers-color-scheme`.
 - Han characters use a CJK font stack (`"PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif`; TC variants on Traditional pages via `lang="zh-Hant"`). Set `lang` on elements containing Chinese.
 - Touch targets ≥ 44 px.
+
+## Error Handling & Defensive Coding
+
+- `localStorage` access is wrapped in try/catch, and settings read from it are validated against the `Settings` shape; anything invalid falls back to the defaults.
+- Failures the user can act on show in the page in plain words, with Retry where it helps: "Couldn't load the dictionary", "Couldn't load words.", "Couldn't load the stroke order…".
+- A missing stroke file is a typed result (`{ kind: 'missing' }` / `{ kind: 'offline' }`), not an exception.
+- Character searches keep working when words fail to load.
+
+## Testing
+
+- Vitest, tests next to the code. Pinyin parsing and search ranking stay fully covered.
+- Pure modules in `src/lib/` and the data pipeline parsers (`scripts/data/`) are unit-tested; components only where they hold logic worth testing (`CompositionSection`).
+- No automated end-to-end tests. Browser passes are manual and listed as Operations in each canvas.
+- Before calling work done: `npm run lint && npm run check && npm test && npm run build` (CI runs the same steps).
+
+## Tooling & Workflow
+
+- ESLint + Prettier (`npm run lint`), `svelte-check` + `tsc` (`npm run check`).
+- Commit to `main`; GitHub Actions builds and deploys to Pages on push.
+- Dictionary data is rebuilt locally (`npm run data:fetch`, `npm run data:build`); commit the regenerated `dict.json` and `words.json` together with the code change.
+
+## Observability
+
+None in the app. The data build prints a report (counts, sizes, warnings) to stdout; sizes in the Vite build output are checked against `docs/SAFEGUARDS.md`.
 
 ## Anti-Patterns
 

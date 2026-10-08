@@ -8,6 +8,18 @@ Bihua is a personal, static web app: search a Chinese character by pinyin (or pa
 
 The user is a beginner Mandarin learner (Simplified, pinyin) who also reads a xianxia novel, so rare characters (睥, 睨) matter as much as HSK ones.
 
+## How Features Are Built (SPDD)
+
+Every feature has a REASONS canvas at `docs/features/{feature-name}/CANVAS.md`. The canvas is the source of truth; code is derived from it. Project-wide Norms are in `docs/CONVENTIONS.md`, Safeguards in `docs/SAFEGUARDS.md`, scope in `BRIEF.md`.
+
+1. No code for a feature until its canvas exists and R/E/A/S are approved by the user.
+2. Implement one Operation at a time; each is a small, independently testable step. Tick it off in the canvas when done.
+3. Every change respects Norms and Safeguards.
+4. **Drift rule:** if the code needs to differ from the canvas (new requirement, wrong approach, discovered edge case), stop, update the canvas first (and its Change Log), get it approved, then change the code. Never silently patch code away from the canvas.
+5. After a feature ships, sync the canvas with what was actually built.
+
+Changing a shipped feature means updating its canvas first (new or reopened Operations), then the code. Old PRD/tech-spec/plan files are in `docs/archive/` for history only.
+
 ## Tech Stack & Conventions
 
 ### Language: TypeScript
@@ -69,10 +81,13 @@ None. All data is static JSON.
 - `src/lib/data/strokes.ts`: offline stroke loader for Hanzi Writer.
 - `scripts/data/build.ts`: generates `public/data/dict.json` and `public/data/words.json`.
 - `src/lib/data/words.worker.ts`, `src/lib/search/words.ts`: word loading and search (Web Worker + pure logic).
-- `docs/features/english-search/PLAN.md`: English search, words, word page, tone sandhi.
+- `docs/features/*/CANVAS.md`: one REASONS canvas per feature (shipped, planned or draft).
+- `docs/SAFEGUARDS.md`: invariants, performance limits, privacy rules.
 - `vite.config.ts`: `base: '/bihua/'`, PWA config, stroke file copy.
 
 ## Things to Avoid
+
+The non-negotiables (privacy, offline, S↔T rule, HSK default, performance limits) are in `docs/SAFEGUARDS.md`. In code, also avoid:
 
 - Naive Simplified↔Traditional conversion (char-by-char maps). Counterparts come only from CC-CEDICT entries, per reading (发 fā → 發, 发 fà → 髮).
 - Hiding non-HSK characters by default. The HSK filter is off unless the user turns it on.
