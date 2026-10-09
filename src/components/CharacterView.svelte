@@ -13,6 +13,7 @@
   import { retryWords, wordsContainingChar } from '$lib/words.svelte.js'
 
   import CharacterInfo from './CharacterInfo.svelte'
+  import ComponentOfSection from './ComponentOfSection.svelte'
   import CompositionSection from './CompositionSection.svelte'
   import StrokeAnimation from './StrokeAnimation.svelte'
   import StrokeSteps from './StrokeSteps.svelte'
@@ -147,6 +148,8 @@
   {#if entry}
     <CompositionSection {entry} {dict} />
   {/if}
+
+  <ComponentOfSection {char} {entry} {dict} />
 
   {#if wordStatus === 'loading'}
     <section class="words">

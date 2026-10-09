@@ -1,7 +1,7 @@
 # REASONS Canvas: Component Of
 
-**Status**: in progress (O1 done 2026-10-08)
-**Last synced with code**: — (no code yet)
+**Status**: shipped (2026-10-08)
+**Last synced with code**: 2026-10-08
 
 ---
 
@@ -16,13 +16,13 @@ On a character's page, list the characters that use it as a direct part. It is t
 
 ### Definition of Done
 
-- [ ] A **"Component of"** section in the character view (character page, and the selected character on the word page), placed after Composition and before "Words with X".
-- [ ] It lists every character whose Composition contains the current character as a direct part: if 霸 = 雨 + 革 + 月, then 霸 is listed on 革's page but not on the pages of 革's own parts.
-- [ ] Each entry looks like a Composition card: the character, its pinyin, its short meaning, and tags when they apply: `meaning` or `sound` when the current character is that character's meaning or sound part, `radical` when it is that character's radical. Each card links to that character's page.
-- [ ] Ordered by frequency, like search results; 12 at a time with "Show more", like the word list.
-- [ ] The heading shows the count: "Component of 147 characters" (讠 in Simplified mode).
-- [ ] The list follows the script setting, using the same rule as "Words with X": on a Traditional-only character's page, Traditional characters; otherwise the current setting (Simplified: S + ST, Traditional: T + ST, Both: all).
-- [ ] The section is hidden when nothing matches.
+- [x] A **"Component of"** section in the character view (character page, and the selected character on the word page), placed after Composition and before "Words with X".
+- [x] It lists every character whose Composition contains the current character as a direct part: if 霸 = 雨 + 革 + 月, then 霸 is listed on 革's page but not on the pages of 革's own parts.
+- [x] Each entry looks like a Composition card: the character, its pinyin, its short meaning, and tags when they apply: `meaning` or `sound` when the current character is that character's meaning or sound part, `radical` when it is that character's radical. Each card links to that character's page.
+- [x] Ordered by frequency, like search results; 12 at a time with "Show more", like the word list.
+- [x] The heading shows the count: "Component of 147 characters" (讠 in Simplified mode).
+- [x] The list follows the script setting, using the same rule as "Words with X": on a Traditional-only character's page, Traditional characters; otherwise the current setting (Simplified: S + ST, Traditional: T + ST, Both: all).
+- [x] The section is hidden when nothing matches.
 
 ### Edge Cases
 
@@ -65,7 +65,7 @@ Data as of 2026-10-07: 1,811 characters are a part of at least one other; median
 
 ## S — Structure
 
-- **Adds**: `src/lib/search/component-of.ts` (+ test) — `buildComponentOfIndex(dict)`, `componentOf(index, part, script)`, tag computation; `src/components/ComponentOfSection.svelte`
+- **Adds**: `src/lib/search/component-of.ts` (+ test) — `buildComponentOfIndex(dict)`, `getOrBuildComponentOfIndex`, `componentOf(index, part, script)`, `componentTags`; `src/components/ComponentOfSection.svelte` (+ test); `src/components/CharCard.svelte` (the card extracted from Composition, shared by both sections)
 - **Changes**: `src/components/CharacterView.svelte` — section between Composition and "Words with X"
 - **Depends on**: character-composition data (`components`, `etymology`, `radical`), the search ranking, the script rule from words-on-character-page
 
@@ -74,7 +74,7 @@ Data as of 2026-10-07: 1,811 characters are a part of at least one other; median
 ## O — Operations
 
 - [x] **O1**: `src/lib/search/component-of.ts`: build the index from the dictionary (reverse of `components`, de-duplicated, ranking order), `componentOf(index, part, script)` with the Words-with-X script rule, and tag computation — verify by: unit tests on a fixture (木/林/森/机, 言/說/讠/说, a radical-only case, a repeated part), plus the build time measured on the real `dict.json` — done 2026-10-08: index builds in 5.7 ms on the real dictionary (stays on the main thread); 讠 147 (S), 言 19 (S) / 162 (ST)
-- [ ] **O2**: `ComponentOfSection.svelte` in `CharacterView` between Composition and "Words with X": Composition-style cards with pinyin, short meaning and tags, count in the heading, 12 per page with Show more, hidden when empty — verify by: browser check on 木, 讠, 言 (Simplified and Both), 革 and a character with no list, at phone and desktop widths; Word page shows it for the selected character
+- [x] **O2**: `ComponentOfSection.svelte` in `CharacterView` between Composition and "Words with X": Composition-style cards with pinyin, short meaning and tags, count in the heading, 12 per page with Show more, hidden when empty — verify by: browser check on 木, 讠, 言 (Simplified and Both), 革 and a character with no list, at phone and desktop widths; Word page shows it for the selected character — done 2026-10-08: checked in headless Chrome on a production build (木 331 with first 12 样本机相果条权格术根极林, Show more, 讠 147 with meaning/radical tags, 革 23, 言 19/162, hidden for 的, word page 木头/木, 360 and 1280 px)
 
 ---
 
@@ -90,7 +90,8 @@ Bound by [docs/SAFEGUARDS.md](../../SAFEGUARDS.md). Feature-specific: no change 
 
 ## Change Log
 
-| Date       | Section    | Change                                                                                                                         | Reason                                     |
-| ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
-| 2026-10-07 | R          | Draft created from user request                                                                                                | Feature request                            |
-| 2026-10-07 | R, E, A, S | Named "Component of"; direct parts only (mirror of Composition); cards like Composition with tags; script rule as Words with X | User answers to the draft's open questions |
+| Date       | Section    | Change                                                                                                                         | Reason                                                             |
+| ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| 2026-10-07 | R          | Draft created from user request                                                                                                | Feature request                                                    |
+| 2026-10-07 | R, E, A, S | Named "Component of"; direct parts only (mirror of Composition); cards like Composition with tags; script rule as Words with X | User answers to the draft's open questions                         |
+| 2026-10-08 | S          | Shipped; Composition's card extracted into a shared `CharCard`                                                                 | Avoids duplicating ~60 lines of card markup and CSS (allowed by A) |

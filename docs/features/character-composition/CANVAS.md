@@ -57,7 +57,7 @@ New `CharEntry` fields (`src/lib/data/types.ts`):
 
 - `scripts/data/sources/mmah.ts`, `scripts/data/merge.ts` — decomposition and etymology into `dict.json`
 - `src/lib/data/types.ts` — new fields and `Etymology`
-- `src/components/CompositionSection.svelte` (+ test), used by `CharacterView.svelte`
+- `src/components/CompositionSection.svelte` (+ test), used by `CharacterView.svelte`; its cards are the shared `CharCard.svelte` (also used by [component-of](../component-of/CANVAS.md))
 - `src/routes/AboutPage.svelte` — Make Me a Hanzi credit covers the decomposition data
 
 ---
@@ -82,6 +82,7 @@ Bound by [docs/SAFEGUARDS.md](../../SAFEGUARDS.md). Feature-specific: `dict.json
 
 ## Change Log
 
-| Date       | Section | Change                                                                                            | Reason                    |
-| ---------- | ------- | ------------------------------------------------------------------------------------------------- | ------------------------- |
-| 2026-10-07 | All     | Migrated from `PLAN.md` (now in `docs/archive/character-composition/`), verified against the code | Adopting REASONS canvases |
+| Date       | Section | Change                                                                                            | Reason                            |
+| ---------- | ------- | ------------------------------------------------------------------------------------------------- | --------------------------------- |
+| 2026-10-07 | All     | Migrated from `PLAN.md` (now in `docs/archive/character-composition/`), verified against the code | Adopting REASONS canvases         |
+| 2026-10-08 | S       | Cards now rendered by the shared `CharCard` component; look and test unchanged                    | component-of reuses the same card |
