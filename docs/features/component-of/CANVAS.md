@@ -1,6 +1,6 @@
 # REASONS Canvas: Component Of
 
-**Status**: approved (R/E/A/S 2026-10-08)
+**Status**: in progress (O1 done 2026-10-08)
 **Last synced with code**: — (no code yet)
 
 ---
@@ -73,7 +73,7 @@ Data as of 2026-10-07: 1,811 characters are a part of at least one other; median
 
 ## O — Operations
 
-- [ ] **O1**: `src/lib/search/component-of.ts`: build the index from the dictionary (reverse of `components`, de-duplicated, ranking order), `componentOf(index, part, script)` with the Words-with-X script rule, and tag computation — verify by: unit tests on a fixture (木/林/森/机, 言/說/讠/说, a radical-only case, a repeated part), plus the build time measured on the real `dict.json`
+- [x] **O1**: `src/lib/search/component-of.ts`: build the index from the dictionary (reverse of `components`, de-duplicated, ranking order), `componentOf(index, part, script)` with the Words-with-X script rule, and tag computation — verify by: unit tests on a fixture (木/林/森/机, 言/說/讠/说, a radical-only case, a repeated part), plus the build time measured on the real `dict.json` — done 2026-10-08: index builds in 5.7 ms on the real dictionary (stays on the main thread); 讠 147 (S), 言 19 (S) / 162 (ST)
 - [ ] **O2**: `ComponentOfSection.svelte` in `CharacterView` between Composition and "Words with X": Composition-style cards with pinyin, short meaning and tags, count in the heading, 12 per page with Show more, hidden when empty — verify by: browser check on 木, 讠, 言 (Simplified and Both), 革 and a character with no list, at phone and desktop widths; Word page shows it for the selected character
 
 ---
