@@ -1,6 +1,6 @@
 # REASONS Canvas: Pronunciation (device voice + recorded syllables)
 
-**Status**: in progress (O1–O2 done 2026-10-08)
+**Status**: in progress (O1–O3 done 2026-10-08)
 **Last synced with code**: — (no code yet)
 
 ---
@@ -97,7 +97,7 @@ A speaker button on character and word pages that says the character or word alo
 
 - [x] **O1**: `scripts/data/fetch-audio.ts` + `npm run data:audio`: download the 24 kbps syllable set at the pinned commit, rename (`cmn-` prefix, `_` interjections, `jv4` → `ju4`), skip tone 5, write `syllables.json` and `LICENSE.txt`; commit the files — verify by: 1,688 files, `ju4.mp3` and `lv4.mp3` present, no tone-5 files, total ≤ 8 MB; unit test of the rename rule — done 2026-10-08: 1,688 clips, 7.30 MiB; covers 1,288 of 1,289 dictionary syllables (only yo1 missing)
 - [x] **O2**: `src/lib/audio/plan.ts`: `pickVoice`, `planReading`, `planWord` — verify by: unit tests (voice lists with online-only, Cantonese, zh-CN and zh-TW voices; main vs secondary readings of 行; neutral readings of 的 and 吧 with and without a voice; 你好 clips with spoken tones; a word with a neutral syllable; `lv4`) — done 2026-10-08 (22 tests)
-- [ ] **O3**: `speaker.svelte.ts` + `SpeakButton.svelte`; buttons after each reading's pinyin (CharacterInfo) and by the word's pinyin (WordPage); stop on navigation; About credit — verify by: unit-free browser check in headless Chrome (no voice there, so clips): 行 xíng/háng play `xing2`/`hang2`, 你好 plays `ni2`+`hao3`, 了's buttons, 的 without a voice has none, a second press stops the first, no external requests
+- [x] **O3**: `speaker.svelte.ts` + `SpeakButton.svelte`; buttons after each reading's pinyin (CharacterInfo) and by the word's pinyin (WordPage); stop on navigation; About credit — verify by: unit-free browser check in headless Chrome (no voice there, so clips): 行 xíng/háng play `xing2`/`hang2`, 你好 plays `ni2`+`hao3`, 了's buttons, 的 without a voice has none, a second press stops the first, no external requests — done 2026-10-08: checked in headless Chrome on a production build both with the Mac's on-device voices (picked "Eddy, Chinese (China mainland)", zh-CN, local: main readings and 你好 spoken, secondary readings played as recordings) and with the speech API hidden (all recordings: xing2, hang2, ni2 → hao3; no button for neutral le/de/dōngxi; second press stops)
 - [ ] **O4**: Precache the clips and `syllables.json`; measure the precache and update `docs/SAFEGUARDS.md` — verify by: build output within limits; offline (server stopped) 行's buttons still play
 - [ ] **O5**: User check on the phone: device voice used for main readings and words (or fallback works) — verify by: the user's report
 

@@ -40,6 +40,11 @@
       HSK 3.0 character and handwriting lists (GF0025-2021), transcribed by
       <a href="https://github.com/krmanik/HSK-3.0">krmanik/HSK-3.0</a>.
     </li>
+    <li>
+      Pronunciation recordings: syllables by Chen Wang, from
+      <a href="https://github.com/hugolpz/audio-cmn">audio-cmn</a> (CC BY-SA). When the device has an
+      on-device Mandarin voice, it is used for main readings and words; nothing is sent to a server.
+    </li>
   </ul>
 </section>
 

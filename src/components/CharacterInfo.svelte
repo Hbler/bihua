@@ -1,9 +1,13 @@
 <!-- Readings, meanings, counterparts and metadata for one character. -->
 <script lang="ts">
+  import { planReading } from '$lib/audio/plan'
+  import { getClips } from '$lib/audio/speaker.svelte'
   import type { CharEntry, Tone } from '$lib/data/types'
   import { sandhiNotes } from '$lib/pinyin/sandhi'
   import { characterHref, wordHref } from '$lib/route'
   import { splitRegisterLabels } from '$lib/search/register'
+
+  import SpeakButton from './SpeakButton.svelte'
 
   interface Props {
     entry: CharEntry
@@ -52,7 +56,7 @@
 
 {#if entry.readings.length > 0}
   <ul class="readings">
-    {#each entry.readings as reading (`${reading.syllable}${reading.tone}`)}
+    {#each entry.readings as reading, i (`${reading.syllable}${reading.tone}`)}
       {@const isSelected =
         selectedReading &&
         selectedReading.syllable === reading.syllable &&
@@ -61,6 +65,11 @@
       <li class:selected-reading={isSelected}>
         <p class="pinyin" class:selected={isSelected}>
           {reading.pinyin}
+          <SpeakButton
+            id={`${entry.char}-${i}`}
+            label={`Listen to ${reading.pinyin}`}
+            getPlan={(v) => planReading(entry, i, v, getClips())}
+          />
           {#if isSelected}
             <span class="in-word-tag">in this word</span>
           {/if}

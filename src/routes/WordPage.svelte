@@ -1,5 +1,7 @@
 <!-- Word page: word overview, character cards, and embedded character view. -->
 <script lang="ts">
+  import { planWord } from '$lib/audio/plan.js'
+  import { getClips } from '$lib/audio/speaker.svelte.js'
   import type { Dictionary } from '$lib/data/dictionary.js'
   import type { WordEntry } from '$lib/data/types.js'
   import { spokenTones } from '$lib/pinyin/sandhi.js'
@@ -10,6 +12,7 @@
   import { lookupWord, retryWords, words } from '$lib/words.svelte.js'
 
   import CharacterView from '../components/CharacterView.svelte'
+  import SpeakButton from '../components/SpeakButton.svelte'
 
   interface Props {
     dict: Dictionary
@@ -139,7 +142,21 @@
             .map((t, i) => numberedToMarks(reading.syllables[i], t))
             .join(' ')}
           <section class="reading-block">
-            <p class="reading-pinyin">{reading.pinyin}</p>
+            <p class="reading-pinyin">
+              {reading.pinyin}
+              <SpeakButton
+                id={`${word}-w${readingIndex}`}
+                label={`Listen to ${reading.pinyin}`}
+                getPlan={(v) =>
+                  planWord(
+                    word,
+                    reading.syllables,
+                    spokenTones([...word], reading.tones).tones,
+                    readingIndex === 0 ? v : false,
+                    getClips(),
+                  )}
+              />
+            </p>
             {#if hasSandhi}
               <p class="spoken-line">
                 {sandhi.approximate ? 'usually spoken: ' : 'spoken: '}{spokenPinyin}
