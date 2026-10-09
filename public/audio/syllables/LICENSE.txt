@@ -1,0 +1,3 @@
+Mandarin syllable recordings by Chen Wang, licensed CC BY-SA.
+Source: audio-cmn, https://github.com/hugolpz/audio-cmn (commit ff9ed3d0c631195bd2c06f39450f3264c7124040, 24k-abr/syllabs).
+Files are unmodified; only renamed from cmn-{syllable}{tone}.mp3 to {syllable}{tone}.mp3 (ü after j/q/x/y written as u). Tone-5 files are not included.

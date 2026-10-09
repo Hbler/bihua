@@ -13,7 +13,8 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "data:fetch": "tsx scripts/data/fetch.ts",
-    "data:build": "tsx scripts/data/build.ts"
+    "data:build": "tsx scripts/data/build.ts",
+    "data:audio": "tsx scripts/data/fetch-audio.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
