@@ -7,7 +7,7 @@
 
 ## R — Requirements
 
-A 🔊 button on character and word pages that says the character or word aloud. The device's own Chinese voice is used first; recorded syllable clips, shipped with the app, are the fallback, so pronunciation also works on devices without a usable voice and fully offline. Scope approved by the user on 2026-10-08 (`BRIEF.md` updated).
+A speaker button on character and word pages that says the character or word aloud. The device's own Chinese voice is used first; recorded syllable clips, shipped with the app, are the fallback, so pronunciation also works on devices without a usable voice and fully offline. Scope approved by the user on 2026-10-08 (`BRIEF.md` updated).
 
 ### User Stories
 
@@ -22,6 +22,7 @@ A 🔊 button on character and word pages that says the character or word aloud.
 - [ ] Device voice: a Mandarin voice with `localService === true` (prefer `zh-CN`, then `zh-TW`; never Cantonese `zh-HK`/`yue`). Online voices are never used.
 - [ ] Recorded fallback: 1,688 tone-1–4 syllable clips (covering 1,288 of the dictionary's 1,289 tone-1–4 syllables; only `yo1` 哟 has none) from audio-cmn (Chen Wang, CC BY-SA), shipped with the app and precached, so they work offline from the first install.
 - [ ] A button is shown only when it can play something: it is hidden for a reading that needs a clip that doesn't exist (neutral tones, e.g. 吗 ma) and, without a voice, for a word containing such a syllable.
+- [ ] The button is a **flat speaker icon**, not an emoji: a small outline SVG (24-unit viewBox, round 2-unit strokes) drawn in `currentColor`, coloured `--muted`, and `--accent` while its sound is playing; about the height of the pinyin text, with a touch target of at least 44 px; `aria-label` "Listen to xíng".
 - [ ] One sound at a time: pressing a button stops what's playing; leaving the page stops it.
 - [ ] About page credits the recordings: "Syllable recordings by Chen Wang, CC BY-SA (audio-cmn)", with a link.
 - [ ] The user confirms on their phone that the device voice works (or that the fallback is used).
@@ -85,7 +86,7 @@ A 🔊 button on character and word pages that says the character or word aloud.
 
 ## S — Structure
 
-- **Adds**: `scripts/data/fetch-audio.ts` (+ `npm run data:audio`); `public/audio/syllables/*.mp3`, `syllables.json`, `LICENSE.txt`; `src/lib/audio/plan.ts` (+ test); `src/lib/audio/speaker.svelte.ts`; `src/components/SpeakButton.svelte`
+- **Adds**: `scripts/data/fetch-audio.ts` (+ `npm run data:audio`); `public/audio/syllables/*.mp3`, `syllables.json`, `LICENSE.txt`; `src/lib/audio/plan.ts` (+ test); `src/lib/audio/speaker.svelte.ts`; `src/components/SpeakButton.svelte` (with the inline speaker SVG)
 - **Changes**: `src/components/CharacterInfo.svelte` (button per reading); `src/routes/WordPage.svelte` (button by the word's pinyin); `src/routes/AboutPage.svelte` (credit); `vite.config.ts` (precache audio); `docs/SAFEGUARDS.md` (measured sizes)
 - **Depends on**: spoken-pinyin (`spokenTones`) for the word fallback
 
@@ -113,8 +114,9 @@ Bound by [docs/SAFEGUARDS.md](../../SAFEGUARDS.md). Feature-specific: only on-de
 
 ## Change Log
 
-| Date       | Section    | Change                                                                                                                              | Reason                         |
-| ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| 2026-10-07 | R          | Migrated from `english-search/PLAN.md` phase 3 (now in `docs/archive/english-search/`), including the recorded-clip candidate notes | Adopting REASONS canvases      |
-| 2026-10-08 | R, E, A, S | Scheduled: device voice first, audio-cmn recordings (CC BY-SA) precached as fallback; 汉语拼音网 rejected (no license)              | User decision; licensing check |
-| 2026-10-08 | R          | Button placement made exact: right after each reading's pinyin heading                                                              | User review                    |
+| Date       | Section    | Change                                                                                                                              | Reason                                                                          |
+| ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| 2026-10-07 | R          | Migrated from `english-search/PLAN.md` phase 3 (now in `docs/archive/english-search/`), including the recorded-clip candidate notes | Adopting REASONS canvases                                                       |
+| 2026-10-08 | R, E, A, S | Scheduled: device voice first, audio-cmn recordings (CC BY-SA) precached as fallback; 汉语拼音网 rejected (no license)              | User decision; licensing check                                                  |
+| 2026-10-08 | R          | Button placement made exact: right after each reading's pinyin heading                                                              | User review                                                                     |
+| 2026-10-08 | R          | Flat inline SVG speaker icon instead of the 🔊 emoji                                                                                | User: fit the app's flat UI; emoji render as 3D pictures that differ per device |
