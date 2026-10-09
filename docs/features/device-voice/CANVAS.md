@@ -1,7 +1,7 @@
 # REASONS Canvas: Pronunciation (device voice + recorded syllables)
 
-**Status**: shipped 2026-10-08 (O1–O4); O5 (user's phone check) open
-**Last synced with code**: — (no code yet)
+**Status**: shipped 2026-10-08 (O1–O5)
+**Last synced with code**: 2026-10-08
 
 ---
 
@@ -17,15 +17,15 @@ A speaker button on character and word pages that says the character or word alo
 
 ### Definition of Done
 
-- [ ] Character page: a 🔊 button right after each reading's pinyin heading (行 → `xíng 🔊` above its meanings, `háng 🔊` above its meanings), so each button says exactly the reading it sits next to. The character's main (first) reading uses the device voice when available; other readings always play the recorded clip for that syllable and tone, because the voice can't be told which reading to use.
-- [ ] Word page: a 🔊 button next to the word's pinyin. It uses the device voice for the whole word (the voice applies tone sandhi itself). Without a voice, it plays the clips one after another using the **spoken** tones from spoken-pinyin (你好 → ní hǎo).
-- [ ] Device voice: a Mandarin voice with `localService === true` (prefer `zh-CN`, then `zh-TW`; never Cantonese `zh-HK`/`yue`). Online voices are never used.
-- [ ] Recorded fallback: 1,688 tone-1–4 syllable clips (covering 1,288 of the dictionary's 1,289 tone-1–4 syllables; only `yo1` 哟 has none) from audio-cmn (Chen Wang, CC BY-SA), shipped with the app and precached, so they work offline from the first install.
-- [ ] A button is shown only when it can play something: it is hidden for a reading that needs a clip that doesn't exist (neutral tones, e.g. 吗 ma) and, without a voice, for a word containing such a syllable.
-- [ ] The button is a **flat speaker icon**, not an emoji: a small outline SVG (24-unit viewBox, round 2-unit strokes) drawn in `currentColor`, coloured `--muted`, and `--accent` while its sound is playing; about the height of the pinyin text, with a touch target of at least 44 px; `aria-label` "Listen to xíng".
-- [ ] One sound at a time: pressing a button stops what's playing; leaving the page stops it.
-- [ ] About page credits the recordings: "Syllable recordings by Chen Wang, CC BY-SA (audio-cmn)", with a link.
-- [ ] The user confirms on their phone that the device voice works (or that the fallback is used).
+- [x] Character page: a 🔊 button right after each reading's pinyin heading (行 → `xíng 🔊` above its meanings, `háng 🔊` above its meanings), so each button says exactly the reading it sits next to. The character's main (first) reading uses the device voice when available; other readings always play the recorded clip for that syllable and tone, because the voice can't be told which reading to use.
+- [x] Word page: a 🔊 button next to the word's pinyin. It uses the device voice for the whole word (the voice applies tone sandhi itself). Without a voice, it plays the clips one after another using the **spoken** tones from spoken-pinyin (你好 → ní hǎo).
+- [x] Device voice: a Mandarin voice with `localService === true` (prefer `zh-CN`, then `zh-TW`; never Cantonese `zh-HK`/`yue`). Online voices are never used.
+- [x] Recorded fallback: 1,688 tone-1–4 syllable clips (covering 1,288 of the dictionary's 1,289 tone-1–4 syllables; only `yo1` 哟 has none) from audio-cmn (Chen Wang, CC BY-SA), shipped with the app and precached, so they work offline from the first install.
+- [x] A button is shown only when it can play something: it is hidden for a reading that needs a clip that doesn't exist (neutral tones, e.g. 吗 ma) and, without a voice, for a word containing such a syllable.
+- [x] The button is a **flat speaker icon**, not an emoji: a small outline SVG (24-unit viewBox, round 2-unit strokes) drawn in `currentColor`, coloured `--muted`, and `--accent` while its sound is playing; about the height of the pinyin text, with a touch target of at least 44 px; `aria-label` "Listen to xíng".
+- [x] One sound at a time: pressing a button stops what's playing; leaving the page stops it.
+- [x] About page credits the recordings: "Syllable recordings by Chen Wang, CC BY-SA (audio-cmn)", with a link.
+- [x] The user confirms on their phone that the device voice works (or that the fallback is used).
 
 ### Edge Cases
 
@@ -99,7 +99,7 @@ A speaker button on character and word pages that says the character or word alo
 - [x] **O2**: `src/lib/audio/plan.ts`: `pickVoice`, `planReading`, `planWord` — verify by: unit tests (voice lists with online-only, Cantonese, zh-CN and zh-TW voices; main vs secondary readings of 行; neutral readings of 的 and 吧 with and without a voice; 你好 clips with spoken tones; a word with a neutral syllable; `lv4`) — done 2026-10-08 (22 tests)
 - [x] **O3**: `speaker.svelte.ts` + `SpeakButton.svelte`; buttons after each reading's pinyin (CharacterInfo) and by the word's pinyin (WordPage); stop on navigation; About credit — verify by: unit-free browser check in headless Chrome (no voice there, so clips): 行 xíng/háng play `xing2`/`hang2`, 你好 plays `ni2`+`hao3`, 了's buttons, 的 without a voice has none, a second press stops the first, no external requests — done 2026-10-08: checked in headless Chrome on a production build both with the Mac's on-device voices (picked "Eddy, Chinese (China mainland)", zh-CN, local: main readings and 你好 spoken, secondary readings played as recordings) and with the speech API hidden (all recordings: xing2, hang2, ni2 → hao3; no button for neutral le/de/dōngxi; second press stops)
 - [x] **O4**: Precache the clips and `syllables.json`; measure the precache and update `docs/SAFEGUARDS.md` — verify by: build output within limits; offline (server stopped) 行's buttons still play — done 2026-10-08: precache 1,707 entries, 20.8 MiB; offline with the server stopped, xing2, hang2, ni2 and hao3 all played
-- [ ] **O5**: User check on the phone: device voice used for main readings and words (or fallback works) — verify by: the user's report
+- [x] **O5**: User check on the phone: device voice used for main readings and words (or fallback works) — verify by: the user's report — done 2026-10-08: on the user's phone 行 xíng, háng and héng each play the correct sound, all in the same recorded voice, so the phone has no usable on-device Mandarin voice and the recordings are used everywhere; the user is fine with that. After the release, the phone kept the previous version until the ~21 MB precache had downloaded (about a minute on Wi-Fi)
 
 ---
 
@@ -115,10 +115,12 @@ Bound by [docs/SAFEGUARDS.md](../../SAFEGUARDS.md). Feature-specific: only on-de
 
 ## Change Log
 
-| Date       | Section    | Change                                                                                                                              | Reason                                                                                      |
-| ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| 2026-10-07 | R          | Migrated from `english-search/PLAN.md` phase 3 (now in `docs/archive/english-search/`), including the recorded-clip candidate notes | Adopting REASONS canvases                                                                   |
-| 2026-10-08 | R, E, A, S | Scheduled: device voice first, audio-cmn recordings (CC BY-SA) precached as fallback; 汉语拼音网 rejected (no license)              | User decision; licensing check                                                              |
-| 2026-10-08 | R          | Button placement made exact: right after each reading's pinyin heading                                                              | User review                                                                                 |
-| 2026-10-08 | R          | Flat inline SVG speaker icon instead of the 🔊 emoji                                                                                | User: fit the app's flat UI; emoji render as 3D pictures that differ per device             |
-| 2026-10-08 | A          | Secondary readings of a word also use recordings                                                                                    | Found while specifying O3: word pages list every reading, and a voice can't pick among them |
+| Date       | Section    | Change                                                                                                                                 | Reason                                                                                      |
+| ---------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 2026-10-07 | R          | Migrated from `english-search/PLAN.md` phase 3 (now in `docs/archive/english-search/`), including the recorded-clip candidate notes    | Adopting REASONS canvases                                                                   |
+| 2026-10-08 | R, E, A, S | Scheduled: device voice first, audio-cmn recordings (CC BY-SA) precached as fallback; 汉语拼音网 rejected (no license)                 | User decision; licensing check                                                              |
+| 2026-10-08 | R          | Button placement made exact: right after each reading's pinyin heading                                                                 | User review                                                                                 |
+| 2026-10-08 | R          | Flat inline SVG speaker icon instead of the 🔊 emoji                                                                                   | User: fit the app's flat UI; emoji render as 3D pictures that differ per device             |
+| 2026-10-08 | A          | Secondary readings of a word also use recordings                                                                                       | Found while specifying O3: word pages list every reading, and a voice can't pick among them |
+| 2026-10-08 | O          | Shipped; O5 confirmed on the user's phone (recordings used, no on-device voice found)                                                  | Phone check                                                                                 |
+| 2026-10-08 | A          | Known: an update with a big precache only takes effect once all files have downloaded; until then the phone keeps the previous version | Seen on the user's phone after this release                                                 |
