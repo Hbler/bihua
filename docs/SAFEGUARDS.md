@@ -12,16 +12,16 @@ Non-negotiable boundaries. Every REASONS canvas links here as its second **S** s
 
 ## Performance Limits
 
-| What                         | Limit                                            | Last measured (2026-10-07)              |
-| ---------------------------- | ------------------------------------------------ | --------------------------------------- |
-| `dict.json`                  | ≤ 6 MB raw / ≤ 800 KB gzip                       | 5.35 MiB / 758 KiB                      |
-| Dictionary parse + index     | ≤ 200 ms on a mid-range phone                    | not measured on a phone                 |
-| `words.json`                 | ≤ 12 MB raw (precache limit in `vite.config.ts`) | 7.9 MiB / 3.5 MiB gzip                  |
-| Words load, decode and index | In a Web Worker; never blocks the main thread    | ≈ 520 ms on desktop                     |
-| Search results               | ≤ 100 ms after input settles (100 ms debounce)   | lookup < 5 ms                           |
-| JS bundle, excluding data    | ≤ 100 KB gzip                                    | 44.0 KB                                 |
-| Syllable recordings          | ≤ 8 MB in total; whole precache ≤ 22 MB          | to measure (audio-cmn 24k set: 7.5 MiB) |
-| Lighthouse (mobile)          | PWA installable; performance ≥ 90                | not measured                            |
+| What                         | Limit                                            | Last measured (2026-10-07)                               |
+| ---------------------------- | ------------------------------------------------ | -------------------------------------------------------- |
+| `dict.json`                  | ≤ 6 MB raw / ≤ 800 KB gzip                       | 5.35 MiB / 758 KiB                                       |
+| Dictionary parse + index     | ≤ 200 ms on a mid-range phone                    | not measured on a phone                                  |
+| `words.json`                 | ≤ 12 MB raw (precache limit in `vite.config.ts`) | 7.9 MiB / 3.5 MiB gzip                                   |
+| Words load, decode and index | In a Web Worker; never blocks the main thread    | ≈ 520 ms on desktop                                      |
+| Search results               | ≤ 100 ms after input settles (100 ms debounce)   | lookup < 5 ms                                            |
+| JS bundle, excluding data    | ≤ 100 KB gzip                                    | 44.0 KB                                                  |
+| Syllable recordings          | ≤ 8 MB in total; whole precache ≤ 22 MB          | 7.30 MiB (1,688 clips); precache 1,707 entries, 20.8 MiB |
+| Lighthouse (mobile)          | PWA installable; performance ≥ 90                | not measured                                             |
 
 ## Security & Privacy
 

@@ -66,8 +66,14 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // App shell + dictionary are precached; stroke files (thousands) are cached when viewed.
-        globPatterns: ['**/*.{js,css,html,svg,png}', 'data/dict.json', 'data/words.json'],
+        // App shell, dictionary, words and the syllable recordings (about 7.3 MB) are precached, while stroke files are cached when viewed.
+        globPatterns: [
+          '**/*.{js,css,html,svg,png}',
+          'data/dict.json',
+          'data/words.json',
+          'audio/syllables.json',
+          'audio/syllables/*.mp3',
+        ],
         globIgnores: ['strokes/**'],
         // words.json is ~8.3 MB; keep headroom so a data update can't silently drop it from the precache.
         maximumFileSizeToCacheInBytes: 12 * 1024 * 1024,
