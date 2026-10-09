@@ -47,24 +47,30 @@ The user is a beginner Mandarin learner (paid course + Duolingo) who also reads 
 - Installable PWA, works fully offline.
 - Static site; free hosting (GitHub Pages / Netlify / Cloudflare Pages).
 
+### Pronunciation (added 2026-10-08)
+
+- A 🔊 button on character and word pages reads the character or word aloud with the device's own Chinese voice (on-device only).
+- When the device has no usable voice, or for readings the voice can't be told apart, recorded syllable clips are played instead. The clips ship with the app and work offline.
+- See `docs/features/device-voice/CANVAS.md`.
+
 ### English and word search
 
 - A `拼 / EN` toggle on the search bar: search characters and words by English meaning. Several pinyin syllables find words (`diqiu` → 地球).
 - Word pages show the word's meaning and its characters, with one character's stroke order at a time. Each character page lists words containing it.
-- Word and character pages show the spoken pinyin when tone sandhi changes it (你好 nǐ hǎo → ní hǎo). Text only, no audio.
+- Word and character pages show the spoken pinyin when tone sandhi changes it (你好 nǐ hǎo → ní hǎo).
 - See the canvases in `docs/features/`: `english-search`, `word-search`, `word-page`, `spoken-pinyin`, `words-on-character-page`.
 
 ## Data sources
 
-| Need                                   | Source                                                                                | License note                                                                               |
-| -------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Stroke paths, radical, decomposition   | Make Me a Hanzi / `hanzi-writer-data`                                                 | Arphic Public License (graphics) — fine for a free app; include notice                     |
-| Stroke rendering/animation             | Hanzi Writer                                                                          | MIT                                                                                        |
-| Readings, meanings, S↔T mapping        | CC-CEDICT                                                                             | CC BY-SA 4.0 — attribute                                                                   |
-| Frequency ranking                      | Jun Da character frequency list (or SUBTLEX-CH)                                       | check terms                                                                                |
-| Word frequency                         | SUBTLEX-CH word list                                                                  | check terms                                                                                |
-| HSK levels                             | HSK 3.0 (GF0025-2021) character list + handwriting list, levels 1–9                   | public standard                                                                            |
-| Syllable audio (candidate, not in use) | 汉语拼音网 syllable chart, http://yinjie.hanyupinyin.cn/ — tones 1–4, no neutral tone | no license stated; needs permission before use. See `docs/features/device-voice/CANVAS.md` |
+| Need                                        | Source                                                                                   | License note                                                           |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Stroke paths, radical, decomposition        | Make Me a Hanzi / `hanzi-writer-data`                                                    | Arphic Public License (graphics) — fine for a free app; include notice |
+| Stroke rendering/animation                  | Hanzi Writer                                                                             | MIT                                                                    |
+| Readings, meanings, S↔T mapping             | CC-CEDICT                                                                                | CC BY-SA 4.0 — attribute                                               |
+| Frequency ranking                           | Jun Da character frequency list (or SUBTLEX-CH)                                          | check terms                                                            |
+| Word frequency                              | SUBTLEX-CH word list                                                                     | check terms                                                            |
+| HSK levels                                  | HSK 3.0 (GF0025-2021) character list + handwriting list, levels 1–9                      | public standard                                                        |
+| Syllable audio (fallback for the 🔊 button) | audio-cmn syllable recordings by Chen Wang (github.com/hugolpz/audio-cmn, pinned commit) | CC BY-SA — credit the speaker; shipped unmodified                      |
 
 A build step should preprocess these into compact static JSON (pinyin index, per-character entries), so the app ships no raw dictionaries.
 
@@ -80,7 +86,7 @@ A build step should preprocess these into compact static JSON (pinyin index, per
 
 - Accounts, sync, progress tracking, spaced repetition, flashcards
 - Handwriting input / on-screen writing practice
-- Example sentences, audio (a device-voice button is planned for later: `docs/features/device-voice/CANVAS.md`)
+- Example sentences
 - Taiwan stroke order, TOCFL tags
 - Printable practice sheets (possible later)
 
