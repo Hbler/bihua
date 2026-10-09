@@ -58,7 +58,8 @@ A speaker button on character and word pages that says the character or word alo
 
 - `pickVoice(voices)`: the first voice with `localService` and a Mandarin language (`zh-CN`, `zh_CN`, `cmn-*`, then `zh-TW`), excluding `zh-HK` and `yue`; else `null`.
 - `planReading(entry, readingIndex, hasVoice, clips)`: main reading with a voice → voice(`entry.char`); otherwise → clip of that reading if it exists; else nothing.
-- `planWord(word, reading, spokenTones, hasVoice, clips)`: voice(`word`) if a voice exists; otherwise clips of each syllable with its spoken tone, or nothing if any clip is missing.
+- `planWord(word, reading, spokenTones, hasVoice, clips)`: voice(`word`) if a voice exists;
+- Words with several readings follow the same rule as characters: only the word's first reading may use the voice; its other readings use recordings with their spoken tones (`planWord(…, hasVoice = false, …)`). otherwise clips of each syllable with its spoken tone, or nothing if any clip is missing.
 
 ### Playing (`src/lib/audio/speaker.svelte.ts`)
 
@@ -114,9 +115,10 @@ Bound by [docs/SAFEGUARDS.md](../../SAFEGUARDS.md). Feature-specific: only on-de
 
 ## Change Log
 
-| Date       | Section    | Change                                                                                                                              | Reason                                                                          |
-| ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| 2026-10-07 | R          | Migrated from `english-search/PLAN.md` phase 3 (now in `docs/archive/english-search/`), including the recorded-clip candidate notes | Adopting REASONS canvases                                                       |
-| 2026-10-08 | R, E, A, S | Scheduled: device voice first, audio-cmn recordings (CC BY-SA) precached as fallback; 汉语拼音网 rejected (no license)              | User decision; licensing check                                                  |
-| 2026-10-08 | R          | Button placement made exact: right after each reading's pinyin heading                                                              | User review                                                                     |
-| 2026-10-08 | R          | Flat inline SVG speaker icon instead of the 🔊 emoji                                                                                | User: fit the app's flat UI; emoji render as 3D pictures that differ per device |
+| Date       | Section    | Change                                                                                                                              | Reason                                                                                      |
+| ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 2026-10-07 | R          | Migrated from `english-search/PLAN.md` phase 3 (now in `docs/archive/english-search/`), including the recorded-clip candidate notes | Adopting REASONS canvases                                                                   |
+| 2026-10-08 | R, E, A, S | Scheduled: device voice first, audio-cmn recordings (CC BY-SA) precached as fallback; 汉语拼音网 rejected (no license)              | User decision; licensing check                                                              |
+| 2026-10-08 | R          | Button placement made exact: right after each reading's pinyin heading                                                              | User review                                                                                 |
+| 2026-10-08 | R          | Flat inline SVG speaker icon instead of the 🔊 emoji                                                                                | User: fit the app's flat UI; emoji render as 3D pictures that differ per device             |
+| 2026-10-08 | A          | Secondary readings of a word also use recordings                                                                                    | Found while specifying O3: word pages list every reading, and a voice can't pick among them |
