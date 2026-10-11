@@ -4,7 +4,7 @@
 
 A personal, responsive web app for looking up a Chinese character and seeing its stroke order, used as a reference while writing the character **by hand on paper**. Search like MDBG, character page like strokeorder.com.
 
-Personal use for now. No accounts, no tracking, no progress, no backend.
+Personal use for now. No accounts, no backend, no progress tracking or gamification (no visit counts, stats, streaks or badges). Convenience data like a recently-viewed list may be kept on the device.
 
 ## Context
 
@@ -84,7 +84,7 @@ A build step should preprocess these into compact static JSON (pinyin index, per
 
 ## Out of scope (v1)
 
-- Accounts, sync, progress tracking, spaced repetition, flashcards
+- Accounts, sync, progress tracking or gamification (visit counts, stats, streaks, badges), spaced repetition, flashcards
 - Handwriting input / on-screen writing practice
 - Example sentences
 - Taiwan stroke order, TOCFL tags

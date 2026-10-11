@@ -4,7 +4,7 @@
 
 Bihua is a personal, static web app: search a Chinese character by pinyin (or paste it), pick it from a frequency-sorted list, and see its stroke order (animation + stroke-by-stroke strip) to copy by hand on paper. Simplified and Traditional, HSK 3.0 tags with an optional filter, deep link per character.
 
-`BRIEF.md` is the scope source of truth. If a request conflicts with its "Out of scope" list (accounts, tracking, flashcards/SRS, on-screen writing, example sentences, Taiwan stroke order), point that out before building it.
+`BRIEF.md` is the scope source of truth. If a request conflicts with its "Out of scope" list (accounts, progress tracking or gamification, flashcards/SRS, on-screen writing, example sentences, Taiwan stroke order), point that out before building it.
 
 The user is a beginner Mandarin learner (Simplified, pinyin) who also reads a xianxia novel, so rare characters (睥, 睨) matter as much as HSK ones.
 
@@ -93,7 +93,7 @@ The non-negotiables (privacy, offline, S↔T rule, HSK default, performance limi
 - Hiding non-HSK characters by default. The HSK filter is off unless the user turns it on.
 - Precaching all stroke files in the service worker (thousands of files). They are cached on demand.
 - Analytics, telemetry, external fonts/CDNs at runtime, or anything that sends data out.
-- Adding a backend, accounts or progress tracking.
+- Adding a backend, accounts, progress tracking or gamification (visit counts, stats, streaks, badges).
 - Path-based routing — GitHub Pages needs hash routes.
 
 ## Terminology

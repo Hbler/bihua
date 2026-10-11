@@ -142,4 +142,4 @@ Including Hanzi Writer's default CDN loader and web fonts. The app must work off
 
 ### Don't: add tracking
 
-No analytics, no usage logging, no history of looked-up characters. Preferences in `localStorage` are the only persisted state.
+No analytics, no usage logging, no progress, counts or gamification. `localStorage` holds only display preferences and the clearable "recently viewed" list (see `docs/SAFEGUARDS.md`).

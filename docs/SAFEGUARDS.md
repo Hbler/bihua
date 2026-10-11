@@ -26,7 +26,7 @@ Non-negotiable boundaries. Every REASONS canvas links here as its second **S** s
 ## Security & Privacy
 
 - **Nothing leaves the browser.** No requests to third-party origins at runtime, including Hanzi Writer's default CDN loader and web fonts. The CSP in `index.html` is `default-src 'self'` (plus inline styles and `data:` images).
-- **No tracking.** No analytics, no usage logging, no history of looked-up characters or words. Display preferences in `localStorage` are the only persisted state.
+- **No tracking or gamification.** No analytics, no usage logging sent anywhere, no progress, visit counts, stats, streaks or badges. What is stored stays in `localStorage` on the device: display preferences, and a short "recently viewed" list of opened characters and words (no counts, no timestamps shown, no search queries) that the user can clear.
 - Text from the URL or the search box is rendered as text, never with `{@html}`.
 - **Speech stays on the device.** The 🔊 button only uses a Chinese voice with `localService === true`; voices that send text to a server (e.g. Google's online voices in Chrome) are never used. Recorded clips are the app's own files.
 - **Offline**: after the first visit, search, dictionary info and word search work offline. Stroke order works offline for characters viewed once. Stroke files are cached on demand, never precached. Syllable recordings are precached, so pronunciation works offline from the first install.
@@ -37,7 +37,8 @@ Scope lives in [`BRIEF.md`](../BRIEF.md), which stays the source of truth: see i
 
 ## Change Log
 
-| Date       | Safeguard                            | Change                                                                                                  | Reason                                                                         |
-| ---------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| 2026-10-07 | All                                  | Collected from `CLAUDE.md`, `BRIEF.md`, the v1 PRD/tech spec and Architecture                           | Migration to REASONS canvases                                                  |
-| 2026-10-08 | Privacy, Offline, Performance, Scope | On-device voices only; syllable recordings precached with a size limit; audio removed from out-of-scope | Pronunciation feature approved by the user (device voice + audio-cmn fallback) |
+| Date       | Safeguard                            | Change                                                                                                                                | Reason                                                                                                         |
+| ---------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 2026-10-07 | All                                  | Collected from `CLAUDE.md`, `BRIEF.md`, the v1 PRD/tech spec and Architecture                                                         | Migration to REASONS canvases                                                                                  |
+| 2026-10-08 | Privacy, Offline, Performance, Scope | On-device voices only; syllable recordings precached with a size limit; audio removed from out-of-scope                               | Pronunciation feature approved by the user (device voice + audio-cmn fallback)                                 |
+| 2026-10-11 | Privacy                              | "No tracking" narrowed to its intent: no analytics, progress or gamification; a clearable on-device "recently viewed" list is allowed | User clarified that what they rejected was progress-style tracking and gamification, not a convenience history |
