@@ -1,7 +1,7 @@
 # REASONS Canvas: Recently Viewed
 
-**Status**: approved (R/E/A/S 2026-10-11)
-**Last synced with code**: — (no code yet)
+**Status**: shipped (2026-10-11)
+**Last synced with code**: 2026-10-11
 
 ---
 
@@ -16,12 +16,12 @@ On the search page, when the search box is empty, show the characters and words 
 
 ### Definition of Done
 
-- [ ] Opening a character page (`#/<char>`) or a word page (`#/w/<word>`) adds it to the list. Re-opening an item moves it to the top; it is never listed twice.
-- [ ] The list keeps the 20 most recent items, newest first.
-- [ ] On the search page with an empty search box (pinyin and English mode), a **"Recently viewed"** section is shown above the existing intro text: one tappable chip per item with the character or word and its main pinyin, linking to its page.
-- [ ] A **"Clear"** button empties the list (one tap; the section then disappears).
-- [ ] Hidden when the list is empty, and never shown while a search is typed.
-- [ ] Stored in `localStorage` only; nothing else is recorded (no searches, no counts, no timestamps shown).
+- [x] Opening a character page (`#/<char>`) or a word page (`#/w/<word>`) adds it to the list. Re-opening an item moves it to the top; it is never listed twice.
+- [x] The list keeps the 20 most recent items, newest first.
+- [x] On the search page with an empty search box (pinyin and English mode), a **"Recently viewed"** section is shown above the existing intro text: one tappable chip per item with the character or word and its main pinyin, linking to its page.
+- [x] A **"Clear"** button empties the list (one tap; the section then disappears).
+- [x] Hidden when the list is empty, and never shown while a search is typed.
+- [x] Stored in `localStorage` only; nothing else is recorded (no searches, no counts, no timestamps shown).
 
 ### Edge Cases
 
@@ -68,8 +68,8 @@ On the search page, when the search box is empty, show the characters and words 
 
 ## O — Operations
 
-- [ ] **O1**: `src/lib/recent.ts` (`addRecent`, `sanitizeRecent`) with tests, and `src/lib/recent.svelte.ts` (state loaded from and saved to `bihua:recent`, `recordView`, `clearRecent`) — verify by: unit tests (insert at front, move to top, cap at 20, kind+text uniqueness, invalid and duplicate stored data dropped, non-array input → empty list)
-- [ ] **O2**: Recording on character pages (entry found) and word pages (word found), `RecentList.svelte` in the search page's empty state (both modes) with chips and Clear — verify by: browser check on a production build: open 睨, 地球, 說, 睨 again → list is 睨, 說, 地球 with pinyin; word-page character switch adds nothing; unknown character adds nothing; list hidden while typing; Clear empties it; survives a reload; 21 items keep 20; phone and desktop widths
+- [x] **O1**: `src/lib/recent.ts` (`addRecent`, `sanitizeRecent`) with tests, and `src/lib/recent.svelte.ts` (state loaded from and saved to `bihua:recent`, `recordView`, `clearRecent`) — verify by: unit tests (insert at front, move to top, cap at 20, kind+text uniqueness, invalid and duplicate stored data dropped, non-array input → empty list)
+- [x] **O2**: Recording on character pages (entry found) and word pages (word found), `RecentList.svelte` in the search page's empty state (both modes) with chips and Clear — verify by: browser check on a production build: open 睨, 地球, 說, 睨 again → list is 睨, 說, 地球 with pinyin; word-page character switch adds nothing; unknown character adds nothing; list hidden while typing; Clear empties it; survives a reload; 21 items keep 20; phone and desktop widths
 
 ---
 
@@ -89,3 +89,4 @@ Bound by [docs/SAFEGUARDS.md](../../SAFEGUARDS.md) — the "recently viewed" lis
 | ---------- | ---------- | -------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | 2026-10-11 | R, E, A, S | Draft created                          | User request; Safeguards narrowed to allow it (same day)                                           |
 | 2026-10-11 | E, A       | Items store their pinyin when recorded | Word data loads in the background; reading it on the search page would make word chips appear late |
+| 2026-10-11 | O          | O1, O2 done; synced with code          | Component forms (⺈, entry without readings) are not recorded, as the edge-case table says         |

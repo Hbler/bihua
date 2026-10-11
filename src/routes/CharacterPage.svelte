@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Dictionary } from '$lib/data/dictionary'
+  import { recordView } from '$lib/recent.svelte'
   import { searchHref } from '$lib/route'
   import { router } from '$lib/router.svelte'
 
@@ -11,6 +12,14 @@
     document.title = `${char} — Bihua`
     return () => {
       document.title = 'Bihua 笔画'
+    }
+  })
+
+  $effect(() => {
+    const entry = dict.byChar.get(char)
+    // Component forms (⺈) have an entry but no readings: not recorded, per the canvas
+    if (entry && entry.readings.length > 0) {
+      recordView({ kind: 'char', text: char, pinyin: entry.readings[0].pinyin })
     }
   })
 </script>

@@ -10,6 +10,7 @@
   import { replaceWordChar, router } from '$lib/router.svelte.js'
   import { splitRegisterLabels } from '$lib/search/register.js'
   import { lookupWord, retryWords, words } from '$lib/words.svelte.js'
+  import { recordView } from '$lib/recent.svelte.js'
 
   import CharacterView from '../components/CharacterView.svelte'
   import SpeakButton from '../components/SpeakButton.svelte'
@@ -56,6 +57,16 @@
     document.title = `${word} — Bihua`
     return () => {
       document.title = 'Bihua 笔画'
+    }
+  })
+
+  $effect(() => {
+    if (entry) {
+      recordView({
+        kind: 'word',
+        text: word,
+        pinyin: entry.readings[0]?.pinyin ?? '',
+      })
     }
   })
 

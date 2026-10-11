@@ -11,6 +11,7 @@
 
   import SearchBar from '../components/SearchBar.svelte'
   import Filters from '../components/Filters.svelte'
+  import RecentList from '../components/RecentList.svelte'
   import ResultList from '../components/ResultList.svelte'
   import WordList from '../components/WordList.svelte'
 
@@ -193,6 +194,7 @@
   {:else if currentMode === 'english'}
     {#if !query.trim()}
       <section class="intro">
+        <RecentList />
         <p>Search a character or word by English meaning:</p>
         <ul>
           <li><code>earth</code> — near-synonyms like 地 and 土, or words like 地球</li>
@@ -267,6 +269,7 @@
       </section>
     {:else if parsed.kind === 'empty'}
       <section class="intro">
+        <RecentList />
         <p>Search a character by pinyin:</p>
         <ul>
           <li><code>shi</code> — all tones</li>
