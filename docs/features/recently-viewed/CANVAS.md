@@ -43,7 +43,7 @@ On the search page, when the search box is empty, show the characters and words 
 
 ## E — Entities
 
-- **RecentItem**: `{ kind: 'char' | 'word'; text: string }` — the form as opened (Simplified or Traditional).
+- **RecentItem**: `{ kind: 'char' | 'word'; text: string; pinyin: string }` — the form as opened (Simplified or Traditional) and the pinyin shown on its chip (character: main reading; word: first reading), stored when the item is recorded.
 - **Recent list**: `RecentItem[]`, newest first, at most 20, unique by `kind` + `text`. `localStorage` key `bihua:recent`.
 
 ## A — Approach
@@ -51,7 +51,7 @@ On the search page, when the search box is empty, show the characters and words 
 - Pure functions (`src/lib/recent.ts`): `addRecent(list, item, max = 20)` → new list with the item moved or inserted at the front and trimmed; `sanitizeRecent(value: unknown)` → a valid list from stored data (drops invalid entries and duplicates, caps at 20).
 - State (`src/lib/recent.svelte.ts`): `recent` as `$state`, loaded with `sanitizeRecent` at startup, saved on change (try/catch like settings); `recordView(item)` and `clearRecent()`.
 - Recording: when a character page or word page has found its entry, it calls `recordView` once per opened page (not on word-page character switching, which uses `replaceState`).
-- Display: chip text from the dictionary (character: main reading's pinyin) or the word's first reading; items whose data isn't loaded yet show the text alone.
+- Display: each chip shows the stored `text` and `pinyin`, so the search page doesn't wait for the word data to load.
 
 ### Alternatives Considered
 
@@ -85,6 +85,7 @@ Bound by [docs/SAFEGUARDS.md](../../SAFEGUARDS.md) — the "recently viewed" lis
 
 ## Change Log
 
-| Date       | Section    | Change        | Reason                                                   |
-| ---------- | ---------- | ------------- | -------------------------------------------------------- |
-| 2026-10-11 | R, E, A, S | Draft created | User request; Safeguards narrowed to allow it (same day) |
+| Date       | Section    | Change                                 | Reason                                                                                             |
+| ---------- | ---------- | -------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 2026-10-11 | R, E, A, S | Draft created                          | User request; Safeguards narrowed to allow it (same day)                                           |
+| 2026-10-11 | E, A       | Items store their pinyin when recorded | Word data loads in the background; reading it on the search page would make word chips appear late |
